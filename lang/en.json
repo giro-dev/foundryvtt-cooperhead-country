@@ -49,6 +49,7 @@
   "CC.LegacyTurf": "Crew playbook turf",
   "CC.Downtime": "Downtime",
   "CC.DowntimeStart": "Start downtime",
+  "CC.DowntimeReset": "Reset downtime activities",
   "CC.DowntimeUsed": "Activities used",
   "CC.DowntimeNoActivities": "No downtime activities left for this downtime.",
   "CC.DowntimeNoCrew": "Join a crew to use its downtime profile; defaulting to Low.",

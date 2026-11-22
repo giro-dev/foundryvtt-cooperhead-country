@@ -138,6 +138,7 @@ export class BladesActorSheet extends BladesSheet {
         });
 
         html.find('.cc-downtime-activity').click((ev) => logDowntimeActivity(this.actor, ev.currentTarget.dataset.activity));
+        html.find('.cc-downtime-reset').click(() => this.actor.update({ "system.downtime.used": 0 }));
 
         // Burnout conditions drive the number of marked Burnout boxes.
         html.find('input[name^="system.burnout.conditions."]').change(async () => {

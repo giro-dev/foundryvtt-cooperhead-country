@@ -148,7 +148,9 @@
 
     <div id="character-{{_id}}-downtime" class="cc-downtime">
       <div class="black-label">{{localize "CC.Downtime"}}</div>
-      <div class="gray-label" {{#unless downtime.hasCrew}}data-tooltip="{{localize 'CC.DowntimeNoCrew'}}"{{/unless}}>{{localize "CC.DowntimeUsed"}}: {{downtime.used}}/{{downtime.allowance}}</div>
+      <div class="gray-label" {{#unless downtime.hasCrew}}data-tooltip="{{localize 'CC.DowntimeNoCrew'}}"{{/unless}}>{{localize "CC.DowntimeUsed"}}: {{downtime.used}}/{{downtime.allowance}}
+        {{#if isGM}}<a class="cc-downtime-reset" data-tooltip="{{localize 'CC.DowntimeReset'}}"><i class="fas fa-rotate-left"></i></a>{{/if}}
+      </div>
       {{#if editable}}
       <div class="cc-downtime-activities flex-horizontal">
         {{#each downtime.activities as |activity|}}
