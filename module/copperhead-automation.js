@@ -98,9 +98,7 @@ async function confirmExtraActivity(actor) {
     okLabel: loc("CC.DowntimePayCash"),
     cancelLabel: loc("Cancel"),
   });
-  if (!form) return false;
-  await actor.update({ "system.cash": num(actor.system.cash) - 1 });
-  return true;
+  return Boolean(form);
 }
 
 async function askActivityDice(title, { dice = 1, extra = "" } = {}) {
@@ -167,8 +165,9 @@ const DOWNTIME_EFFECTS = {
   },
 
   /** Roll Bank (medical help) or 0d (leave it to luck; doesn't use an activity). */
-  async recover(actor, label) {
-    const extra = `<div class="form-group"><label>${loc("CC.RecoverMethod")}</label><select name="method"><option value="bank">${loc("CC.RecoverBank")}</option><option value="luck">${loc("CC.RecoverLuck")}</option></select></div>`;
+  async recover(actor, label, { luckOnly = false } = {}) {
+    const bank = luckOnly ? "" : `<option value="bank">${loc("CC.RecoverBank")}</option>`;
+    const extra = `<div class="form-group"><label>${loc("CC.RecoverMethod")}</label><select name="method">${bank}<option value="luck">${loc("CC.RecoverLuck")}</option></select></div>`;
     const form = await askActivityDice(label, { dice: actor.system.bank, extra });
     if (!form) return null;
     const luck = form.method === "luck";
@@ -193,12 +192,18 @@ export async function logDowntimeActivity(actor, activity) {
   const used = Number(actor.system.downtime?.used) || 0;
   const allowance = getDowntimeAllowance(actor);
   const exhausted = used >= allowance;
-  // Leaving recovery to luck (0d) does not use an activity, so it never needs an extra one.
-  if (exhausted && activity !== "recover" && !(await confirmExtraActivity(actor))) return;
+  const options = {};
+  let paid = false;
+  if (exhausted) {
+    // Leaving recovery to luck (0d) uses no activity, so it stays available without Cash.
+    if (activity === "recover" && num(actor.system.cash) < 1) options.luckOnly = true;
+    else if (await confirmExtraActivity(actor)) paid = true;
+    else return;
+  }
   const label = loc(labelKey("CC.Downtime", activity));
-  const result = await DOWNTIME_EFFECTS[activity]?.(actor, label);
+  const result = await DOWNTIME_EFFECTS[activity]?.(actor, label, options);
   if (!result) return;
-  if (exhausted && activity === "recover" && !result.free) ui.notifications.warn(loc("CC.DowntimeNoActivities"));
+  if (paid && !result.free) await actor.update({ "system.cash": Math.max(0, num(actor.system.cash) - 1) });
   const nextUsed = result.free ? used : used + 1;
   if (nextUsed !== used) await actor.update({ "system.downtime.used": nextUsed });
   const taken = game.i18n.format("CC.DowntimeActivityTaken", { name: escapeHtml(actor.name), activity: label, used: nextUsed, allowance });
