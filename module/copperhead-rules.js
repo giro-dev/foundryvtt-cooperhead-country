@@ -86,13 +86,94 @@ export const CLAIM_STATUSES = Object.freeze(["none", "present", "controlled"]);
 export const DOWNTIME_ACTIVITIES = Object.freeze(["buyStuff", "rnr", "project", "putInWork", "recover"]);
 export const DOWNTIME_ACTIVITIES_BY_PROFILE = Object.freeze({ low: 1, high: 2 });
 
-/** Advance a clock by ticks, clamped to [0, max]. */
+/**
+ * Advance a clock by ticks. When it fills it resets and excess ticks carry over;
+ * `fills` counts how many times it filled. Removing ticks stops at 0.
+ */
 export function advanceClock(value, max, ticks = 1) {
   const size = Math.max(1, Number(max) || 1);
   const current = Math.min(size, Math.max(0, Number(value) || 0));
-  const raw = current + (Number(ticks) || 0);
-  const next = Math.min(size, Math.max(0, raw));
-  return { value: next, filled: next >= size && current < size, overflow: Math.max(0, raw - size) };
+  const raw = Math.max(0, current + (Number(ticks) || 0));
+  if (raw < size) return { value: raw, filled: false, fills: 0, overflow: 0 };
+  const fills = Math.floor(raw / size) - (current === size ? 1 : 0);
+  const next = raw % size;
+  return { value: next, filled: fills > 0, fills, overflow: next };
+}
+
+export const TENSION_MAX = 4;
+
+/**
+ * Tick (or untick) the County Tension clock: when it fills it resets and Tension rises;
+ * removing a tick from an empty clock lowers Tension.
+ */
+export function advanceTension(level, clock, clockMax, ticks = 1, maxLevel = TENSION_MAX) {
+  let tension = Math.min(maxLevel, Math.max(0, Number(level) || 0));
+  const size = Math.max(1, Number(clockMax) || 1);
+  let value = Math.min(size, Math.max(0, Number(clock) || 0));
+  let steps = Number(ticks) || 0;
+  const start = tension;
+  for (; steps > 0; steps--) {
+    value += 1;
+    if (value >= size) { value = 0; tension = Math.min(maxLevel, tension + 1); }
+  }
+  for (; steps < 0; steps++) {
+    if (value > 0) value -= 1;
+    else tension = Math.max(0, tension - 1);
+  }
+  return { level: tension, clock: value, change: tension - start };
+}
+
+/** Project clocks: 1–3 one tick, 4/5 two, 6 three, critical five. */
+export function getProjectTicks(result) {
+  return { "critical-success": 5, success: 3, "partial-success": 2 }[result] ?? 1;
+}
+
+/** Low profile: Heat decreases by 6 − Tier. */
+export function getLowProfileHeatLoss(tier) {
+  return Math.max(0, 6 - (Number(tier) || 0));
+}
+
+/** Income & Wrap-Up: Cash = Income + Tier. */
+export function getDowntimeIncome(income, tier) {
+  return Math.max(0, Number(income) || 0) + Math.max(0, Number(tier) || 0);
+}
+
+export const CLAIM_CATEGORIES = Object.freeze(["drugs", "vice", "theft", "front", "turf"]);
+
+/** Turf value: each Controlled area counts 1, each Present area ½. */
+export function getTurfValue(claims = []) {
+  let value = 0;
+  for (const claim of Array.isArray(claims) ? claims : Object.values(claims ?? {})) {
+    if (claim?.category !== "turf") continue;
+    if (claim.status === "controlled") value += 1;
+    else if (claim.status === "present") value += 0.5;
+  }
+  return value;
+}
+
+/** A crew can raise Tier with a full Rep track and Turf at least equal to the new Tier. */
+export function canIncreaseTier({ tier = 0, rep = 0, repMax = 12, turf = 0, maxTier = 4 } = {}) {
+  const next = (Number(tier) || 0) + 1;
+  return next <= maxTier && (Number(rep) || 0) >= (Number(repMax) || 0) && (Number(turf) || 0) >= next;
+}
+
+/** Recover roll outcome keys. */
+export function getRecoverOutcome(result) {
+  return { "critical-success": "improveTwice", success: "improve", "partial-success": "noProgress" }[result] ?? "worse";
+}
+
+/** Assert Your Innocence: roll half Bank (rounded down). */
+export function getInnocenceDice(bank) {
+  return Math.floor(Math.max(0, Number(bank) || 0) / 2);
+}
+
+export function getInnocenceOutcome(result) {
+  return { "critical-success": "free", success: "slap", "partial-success": "jail" }[result] ?? "life";
+}
+
+/** Minimum bail: crew Tier + Raid. */
+export function getBailCost(tier, raid) {
+  return Math.max(0, Number(tier) || 0) + Math.max(0, Number(raid) || 0);
 }
 
 /** Downtime activities a character may take per downtime for the crew profile. */

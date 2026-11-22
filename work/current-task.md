@@ -60,7 +60,16 @@ Decisions acordades i encara vigents:
 - Crew: tirada de Crew Trouble que omple `trouble_clock`; claims propis (`system.claims`: nom, categoria, estat none/present/controlled, notes) amb resum; el turf del crew playbook heretat es manté a part.
 - Downtime: activitats per personatge segons el perfil del crew (Low 1, High 2), registre al xat i bloqueig quan s'esgoten; botó de GM "Start downtime" que reinicia el comptador dels membres.
 - Personal Trouble: tirada que omple el rellotge del personatge.
-- No automatitzat (cal el llibre): quantitat de Heat de Lay Low, efectes mecànics de cada activitat, income/profit dels claims, relació claims↔Turf/Tier, conseqüències de County Tension i Raid/arrest.
+- Ampliat amb el llibre (2021) i els fulls (2022):
+  - Rellotges: en omplir-se es reinicien i els ticks sobrants es conserven.
+  - Trouble: pool suggerit (Burnout, Tier; Raid i Tier de facció a mà), +1d per mort relacionada amb la crew i +1d per facció en guerra.
+  - Downtime: Low resta `6 − Tier` de Heat, High no; activitat extra pagant 1 Cash; +1d per ajuda.
+  - R&R (Bank, elimina el dau més alt, avís de conseqüència), Project (rellotges `system.projects`, 1/2/3/5 ticks), Put in Work (+1 Cash a PJ o crew), Recover (Bank o 0d sense gastar activitat; resultat al xat).
+  - "Income & wrap-up": la crew guanya `Income + Tier` Cash i qui no ha fet R&R pateix estrès igual al Burnout.
+  - Claims amb categoria Drugs/Vice/Theft/Front/Turf; Turf Present = ½, Controlled = 1; indicador de Tier disponible.
+  - Raid ple: avís al xat (GM actiu), bloqueig del downtime, fiança mínima `Tier + Raid`, tirada "Assert innocence" (meitat del Bank).
+  - County Tension: el rellotge puja/baixa el nivell 0–4 i mostra la descripció del nivell.
+- Encara manual: preus de Buy Stuff, aplicar el pas d'Injury a Recover, Rep per activitats extra, conversió Heat→Raid, increment d'Income per claims `$`/`$$`.
 
 ### Pendents, ordre suggerit
 

@@ -158,6 +158,32 @@
         {{/each}}
       </div>
       {{/if}}
+      {{#if downtime.rnr}}<div class="gray-label">{{localize "CC.DowntimeRnrDone"}}</div>{{/if}}
+      <div class="label-stripe flex-horizontal">
+        <p><label>{{localize "CC.Projects"}}</label></p>
+        {{#if editable}}<p><a class="cc-add-project" data-tooltip="{{localize 'CC.AddProject'}}"><i class="fas fa-plus-square"></i></a></p>{{/if}}
+      </div>
+      {{#each projects as |entry|}}
+      <div class="cc-track flex-horizontal" data-entry-id="{{entry.id}}">
+        {{#if @root.editable}}
+        <input type="text" class="cc-project-field" data-field="name" value="{{entry.name}}" placeholder="{{localize 'CC.Project'}}">
+        {{else}}
+        <span class="cc-track-name">{{entry.name}}</span>
+        {{/if}}
+        <span class="cc-pips">{{#times_from 1 entry.max}}<span class="cc-pip {{#if (lteq this ../entry.value)}}filled{{/if}}"></span>{{/times_from}}</span>
+        {{#if @root.editable}}
+        <a class="cc-project-tick" data-ticks="-1" data-tooltip="{{localize 'CC.UntickClock'}}"><i class="fas fa-minus"></i></a>
+        <a class="cc-project-tick" data-ticks="1" data-tooltip="{{localize 'CC.TickClock'}}"><i class="fas fa-plus"></i></a>
+        <select class="cc-project-field" data-field="max" data-dtype="Number" data-tooltip="{{localize 'CC.ClockSize'}}">
+          {{#each @root.clockSizes as |size|}}<option value="{{size}}" {{#if (eq size ../entry.max)}}selected{{/if}}>{{size}}</option>{{/each}}
+        </select>
+        <a class="cc-project-delete" data-tooltip="{{localize 'BITD.TitleDeleteItem'}}"><i class="fas fa-trash"></i></a>
+        {{/if}}
+      </div>
+      {{/each}}
+      {{#if editable}}
+      <a class="cc-assert-innocence" data-tooltip="{{localize 'CC.AssertInnocenceHint'}}"><i class="fas fa-gavel"></i> {{localize "CC.AssertInnocence"}}</a>
+      {{/if}}
     </div>
   </div>
 

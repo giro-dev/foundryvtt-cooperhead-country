@@ -19,6 +19,7 @@ import { BladesClockSheet } from "./blades-clock-sheet.js";
 import { BladesNPCSheet } from "./blades-npc-sheet.js";
 import { BladesFactionSheet } from "./blades-faction-sheet.js";
 import { BladesCampaignSheet } from "./blades-campaign-sheet.js";
+import { announceRaid } from "./copperhead-automation.js";
 import * as migrations from "./migration.js";
 import { getActorSheetClass, getItemSheetClass, registerActorSheet, unregisterActorSheet, registerItemSheet, unregisterItemSheet } from "./compat.js";
 
@@ -324,6 +325,14 @@ Hooks.once("init", async function() {
  * API and the new foundry.documents collections are guaranteed to exist on V13+ while still
  * allowing the compatibility helpers to fall back on older cores.
  */
+// Raids: when a crew's Raid track fills, stop and resolve the Raid instead of entering downtime.
+Hooks.on("updateActor", (actor, changes) => {
+  if (actor.type !== "crew" || !foundry.utils.hasProperty(changes, "system.raid")) return;
+  if (game.users.activeGM?.id !== game.user.id) return;
+  const raid = Number([].concat(actor.system.raid)[0]) || 0;
+  if (raid >= (Number(actor.system.raid_max) || 4)) announceRaid(actor);
+});
+
 Hooks.once("ready", async function() {
   const actorSheetClass = getActorSheetClass();
   const itemSheetClass = getItemSheetClass();

@@ -36,8 +36,10 @@
       "max": 6
     },
     "downtime": {
-      "used": 0
+      "used": 0,
+      "rnr": false
     },
+    "projects": [],
     "attributes": {
       "grit": {
         "exp": 0,

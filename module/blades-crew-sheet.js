@@ -1,8 +1,8 @@
 import { BladesSheet } from "./blades-sheet.js";
 import { BladesActiveEffect } from "./blades-active-effect.js";
 import { BladesHelpers } from "./blades-helpers.js";
-import { CLAIM_STATUSES, getHeatLevel, summarizeClaims } from "./copperhead-rules.js";
-import { addListEntry, deleteListEntry, labelKey, rollTroubleForClock, startDowntime, updateListEntry } from "./copperhead-automation.js";
+import { CLAIM_CATEGORIES, CLAIM_STATUSES, canIncreaseTier, getBailCost, getDowntimeIncome, getHeatLevel, getTurfValue, summarizeClaims } from "./copperhead-rules.js";
+import { addListEntry, deleteListEntry, labelKey, endDowntime, rollTroubleForClock, startDowntime, updateListEntry } from "./copperhead-automation.js";
 
 const CLAIMS = "system.claims";
 
@@ -61,6 +61,23 @@ export class BladesCrewSheet extends BladesSheet {
     sheetData.claims = sheetData.system.claims ?? [];
     sheetData.claimsSummary = summarizeClaims(sheetData.claims);
     sheetData.claimStatuses = CLAIM_STATUSES.map((key) => ({ key, label: labelKey("CC.Claim", key) }));
+    sheetData.claimCategories = CLAIM_CATEGORIES.map((key) => ({ key, label: labelKey("CC.ClaimCategory", key) }));
+    const first = (value) => Number(Array.isArray(value) ? value[0] : value) || 0;
+    const tier = Number(sheetData.system.tier) || 0;
+    const turf = getTurfValue(sheetData.claims);
+    sheetData.crewStatus = {
+      turf,
+      nextTier: tier + 1,
+      canIncreaseTier: canIncreaseTier({
+        tier,
+        rep: first(sheetData.system.reputation),
+        repMax: (Number(sheetData.system.max?.rep) || 12) - (Number(turfs_amount) || 0),
+        turf,
+        maxTier: Number(sheetData.system.max?.tier) || 4,
+      }),
+      income: getDowntimeIncome(sheetData.system.income, tier),
+      bail: getBailCost(tier, first(sheetData.system.raid)),
+    };
 	
 	//return data
     return sheetData;
@@ -147,14 +164,15 @@ export class BladesCrewSheet extends BladesSheet {
     });
 
     html.find('.cc-crew-trouble-roll').click(() => {
-      rollTroubleForClock(this.actor, "system.trouble_clock", this.actor.system.trouble_clock_max, game.i18n.localize("CC.CrewTrouble"));
+      rollTroubleForClock(this.actor, "system.trouble_clock", this.actor.system.trouble_clock_max, game.i18n.localize("CC.CrewTrouble"), { dice: this.actor.system.tier });
     });
 
     html.find('.cc-start-downtime').click(() => startDowntime(this.actor));
+    html.find('.cc-end-downtime').click(() => endDowntime(this.actor));
 
     // Claims
     const entryId = (ev) => ev.currentTarget.closest("[data-entry-id]")?.dataset.entryId;
-    html.find('.cc-add-claim').click(() => addListEntry(this.actor, CLAIMS, { name: "", category: "", status: "present", notes: "" }));
+    html.find('.cc-add-claim').click(() => addListEntry(this.actor, CLAIMS, { name: "", category: "turf", status: "present", notes: "" }));
     html.find('.cc-claim-field').change((ev) => {
       ev.stopPropagation();
       updateListEntry(this.actor, CLAIMS, entryId(ev), { [ev.currentTarget.dataset.field]: ev.currentTarget.value });

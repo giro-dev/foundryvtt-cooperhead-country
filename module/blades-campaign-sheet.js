@@ -1,6 +1,6 @@
 import { BladesSheet } from "./blades-sheet.js";
 import { TROUBLE_TYPES } from "./copperhead-rules.js";
-import { addListEntry, deleteListEntry, labelKey, rollTrouble, tickActorClock, tickListClock, updateListEntry } from "./copperhead-automation.js";
+import { addListEntry, deleteListEntry, labelKey, rollTrouble, tickListClock, tickTension, updateListEntry } from "./copperhead-automation.js";
 
 const TROUBLES = "system.troubles";
 export const CLOCK_SIZES = [4, 6, 8, 10, 12];
@@ -22,6 +22,8 @@ export class BladesCampaignSheet extends BladesSheet {
     context.clockSizes = CLOCK_SIZES;
     context.troubleTypes = TROUBLE_TYPES.map((key) => ({ key, label: labelKey("CC.TroubleType", key) }));
     context.troubles = (this.actor.system.troubles ?? []).map((entry) => ({ ...entry, typeLabel: labelKey("CC.TroubleType", entry.type) }));
+    const level = Number(Array.isArray(this.actor.system.county_tension) ? this.actor.system.county_tension[0] : this.actor.system.county_tension) || 0;
+    context.tensionDescription = `CC.TensionLevel${Math.min(4, Math.max(0, level))}`;
     return context;
   }
 
@@ -32,8 +34,7 @@ export class BladesCampaignSheet extends BladesSheet {
     const entryId = (ev) => ev.currentTarget.closest("[data-entry-id]")?.dataset.entryId;
 
     html.find(".cc-tension-tick").click((ev) => {
-      const ticks = Number(ev.currentTarget.dataset.ticks) || 1;
-      tickActorClock(this.actor, "system.tension_clock", this.actor.system.tension_clock_max, ticks, game.i18n.localize("CC.TensionClock"));
+      tickTension(this.actor, Number(ev.currentTarget.dataset.ticks) || 1);
     });
     html.find(".cc-add-trouble").click((ev) => {
       const type = ev.currentTarget.dataset.type;
@@ -43,7 +44,7 @@ export class BladesCampaignSheet extends BladesSheet {
     html.find(".cc-track-roll").click(async (ev) => {
       const id = entryId(ev);
       const entry = this.actor.system.troubles.find((e) => e.id === id);
-      const ticks = await rollTrouble(entry?.name || game.i18n.localize(labelKey("CC.TroubleType", entry?.type ?? "crew")));
+      const ticks = await rollTrouble(entry?.name || game.i18n.localize(labelKey("CC.TroubleType", entry?.type ?? "crew")), { type: entry?.type });
       if (ticks !== null) await tickListClock(this.actor, TROUBLES, id, ticks);
     });
     html.find(".cc-entry-field").change((ev) => {

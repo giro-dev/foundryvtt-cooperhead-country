@@ -12,6 +12,16 @@ import {
   getResistanceStress,
   getTroubleTicks,
   HEAT_PROFILES,
+  advanceTension,
+  canIncreaseTier,
+  getBailCost,
+  getDowntimeIncome,
+  getInnocenceDice,
+  getInnocenceOutcome,
+  getLowProfileHeatLoss,
+  getProjectTicks,
+  getRecoverOutcome,
+  getTurfValue,
 } from "../module/copperhead-rules.js";
 
 test("Copperhead attributes contain all twelve actions", () => {
@@ -70,10 +80,11 @@ test("Heat level follows the selected profile thresholds", () => {
 });
 
 test("clocks advance, clamp and report when they fill", () => {
-  assert.deepEqual(advanceClock(3, 6, 2), { value: 5, filled: false, overflow: 0 });
-  assert.deepEqual(advanceClock([4], 6, 5), { value: 6, filled: true, overflow: 3 });
-  assert.deepEqual(advanceClock(6, 6, 1), { value: 6, filled: false, overflow: 1 });
-  assert.deepEqual(advanceClock(1, 6, -3), { value: 0, filled: false, overflow: 0 });
+  assert.deepEqual(advanceClock(3, 6, 2), { value: 5, filled: false, fills: 0, overflow: 0 });
+  assert.deepEqual(advanceClock([4], 6, 5), { value: 3, filled: true, fills: 1, overflow: 3 });
+  assert.deepEqual(advanceClock(6, 6, 1), { value: 1, filled: false, fills: 0, overflow: 1 });
+  assert.deepEqual(advanceClock(1, 4, 9), { value: 2, filled: true, fills: 2, overflow: 2 });
+  assert.deepEqual(advanceClock(1, 6, -3), { value: 0, filled: false, fills: 0, overflow: 0 });
 });
 
 test("downtime activities depend on the crew profile", () => {
@@ -86,4 +97,40 @@ test("claims are summarised by status", () => {
   const claims = [{ status: "controlled" }, { status: "present" }, { status: "controlled" }, { status: "bogus" }];
   assert.deepEqual(summarizeClaims(claims), { none: 1, present: 1, controlled: 2 });
   assert.deepEqual(summarizeClaims({ a: { status: "present" } }), { none: 0, present: 1, controlled: 0 });
+});
+
+test("County Tension rises when its clock fills and falls when unticked empty", () => {
+  assert.deepEqual(advanceTension(1, 5, 6, 2), { level: 2, clock: 1, change: 1 });
+  assert.deepEqual(advanceTension(4, 5, 6, 3), { level: 4, clock: 2, change: 0 });
+  assert.deepEqual(advanceTension(2, 0, 6, -1), { level: 1, clock: 0, change: -1 });
+  assert.deepEqual(advanceTension(0, 0, 6, -1), { level: 0, clock: 0, change: 0 });
+});
+
+test("downtime rules follow the corebook", () => {
+  assert.deepEqual(["failure", "partial-success", "success", "critical-success"].map(getProjectTicks), [1, 2, 3, 5]);
+  assert.equal(getLowProfileHeatLoss(0), 6);
+  assert.equal(getLowProfileHeatLoss(4), 2);
+  assert.equal(getDowntimeIncome(2, 1), 3);
+  assert.deepEqual(["failure", "partial-success", "success", "critical-success"].map(getRecoverOutcome), ["worse", "noProgress", "improve", "improveTwice"]);
+});
+
+test("Turf and Tier", () => {
+  const claims = [
+    { category: "turf", status: "controlled" },
+    { category: "turf", status: "present" },
+    { category: "turf", status: "none" },
+    { category: "drugs", status: "controlled" },
+  ];
+  assert.equal(getTurfValue(claims), 1.5);
+  assert.equal(canIncreaseTier({ tier: 0, rep: 12, repMax: 12, turf: 1 }), true);
+  assert.equal(canIncreaseTier({ tier: 1, rep: 12, repMax: 12, turf: 1.5 }), false);
+  assert.equal(canIncreaseTier({ tier: 0, rep: 11, repMax: 12, turf: 3 }), false);
+  assert.equal(canIncreaseTier({ tier: 4, rep: 12, repMax: 12, turf: 9 }), false);
+});
+
+test("arrests", () => {
+  assert.equal(getInnocenceDice(5), 2);
+  assert.equal(getInnocenceDice(1), 0);
+  assert.deepEqual(["failure", "partial-success", "success", "critical-success"].map(getInnocenceOutcome), ["life", "jail", "slap", "free"]);
+  assert.equal(getBailCost(2, 3), 5);
 });

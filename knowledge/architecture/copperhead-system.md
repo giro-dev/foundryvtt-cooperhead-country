@@ -42,7 +42,7 @@ This repository adapts an earlier Blades in the Dark Foundry codebase into an in
 
 - Default to the 2022 playbook sheets where they differ from the 2021 corebook: Trouble criticals mark 5 ticks and Heat uses 0/2/4/6/8. World settings expose the 2021 alternatives (4 Trouble ticks; Heat 0/3/6/9).
 - Copperhead worlds are independent; do not automatically migrate Blades in the Dark worlds. The old Blades compendium packs remain in the repository but are not declared as system packs.
-- `module/copperhead-automation.js` holds sheet automation: Trouble rolls that tick personal/crew/campaign clocks, campaign Trouble tracks, crew claims (`system.claims`) and downtime activity counters driven by the crew profile (Low 1, High 2).
+- `module/copperhead-automation.js` holds sheet automation: Trouble rolls that tick personal/crew/campaign clocks, campaign Trouble tracks, crew claims (`system.claims`, categories drugs/vice/theft/front/turf), downtime activity counters driven by the crew profile (Low 1, High 2) and their effects (R&R, projects in `system.projects`, Put in Work, Recover, Low-profile Heat loss, Income + Tier wrap-up), Raid alerts and County Tension levels. Pure rules live in `module/copperhead-rules.js` and are covered by `tests/copperhead-rules.test.mjs`.
 - This is a partial implementation. Lay Low Heat reduction, per-activity effects, claim income and Turf/Tier links, County Tension consequences, Raid/arrest procedures, full Copperhead content packs, and Foundry 14 runtime validation remain incomplete. Do not treat present UI fields as automated rules enforcement.
 - Manual text and artwork redistribution permissions have not been established; do not add more source-book text or artwork without verifying rights.
 
