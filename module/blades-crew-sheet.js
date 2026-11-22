@@ -1,6 +1,7 @@
 import { BladesSheet } from "./blades-sheet.js";
 import { BladesActiveEffect } from "./blades-active-effect.js";
 import { BladesHelpers } from "./blades-helpers.js";
+import { getHeatLevel } from "./copperhead-rules.js";
 
 /**
  * @extends {BladesSheet}
@@ -50,6 +51,9 @@ export class BladesCrewSheet extends BladesSheet {
 	turfs_amount = turfs_amount + sheetData.system.turf.bonus;
 	if (turfs_amount > turfs_max) {turfs_amount = turfs_max;};
     sheetData.system.turfs_amount = turfs_amount;
+
+    const heatProfile = game.settings.get("copperhead-county", "heatProfile");
+    sheetData.heatLevel = getHeatLevel(sheetData.system.heat, heatProfile);
 	
 	//return data
     return sheetData;

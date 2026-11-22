@@ -1,6 +1,7 @@
 import { bladesRoll } from "./blades-roll.js";
 import { BladesHelpers } from "./blades-helpers.js";
 import { openFormDialog } from "./lib/dialog-compat.js";
+import { getAttributeRating } from "./copperhead-rules.js";
 
 /**
  * Extend the basic Actor
@@ -42,12 +43,12 @@ export class BladesActor extends Actor {
    */
   getAttributeDiceToThrow() {
 
-    // Copperhead action ratings are the dice pool. Attributes themselves are
-    // only used for resistance rolls, where they are rolled directly.
+    // Action rolls use the action rating; resistance rolls use the attribute
+    // rating (actions with at least one dot, plus any bonus).
     let dice_amount = {};
 
     for (var attribute_name in this.system.attributes) {
-      dice_amount[attribute_name] = Number(this.system.attributes[attribute_name].bonus) || 0;
+      dice_amount[attribute_name] = getAttributeRating(this.system.attributes, attribute_name);
       for (var skill_name in this.system.attributes[attribute_name].skills) {
         dice_amount[skill_name] = parseInt(this.system.attributes[attribute_name].skills[skill_name]['value']) || 0;
       }
@@ -193,7 +194,7 @@ export class BladesActor extends Actor {
    */
   createListOfActions() {
 
-    let text, attribute, skill;
+    let text = "", attribute, skill;
     let attributes = this.system.attributes;
 
     for ( attribute in attributes ) {

@@ -89,6 +89,7 @@
         <label class="radio-toggle" for="crew-{{../_id}}-heat-{{this}}"></label>
         {{/times_from}}
         {{/multiboxes}}
+        <div class="gray-label" data-tooltip="{{localize 'CC.HeatLevel'}}">{{localize (concat "CC.Heat" (pc heatLevel))}}</div>
       </div>
       <div id="crew-{{_id}}-raid-container" class="small-teeth-container crew-wanted-container">
         {{#multiboxes system.raid}}

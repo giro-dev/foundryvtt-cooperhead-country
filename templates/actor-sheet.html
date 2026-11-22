@@ -118,6 +118,7 @@
     </div>
 
     <div id="character-{{_id}}-burnout-container" class="small-teeth-container">
+      {{#traumacounter system.burnout.conditions}}
       <div id="character-{{_id}}-burnout" class="small-teeth-wrap">
         <div class="black-label">{{localize "CC.Burnout"}}</div>
         <div id="character-{{_id}}-burnout-teeth" class="small-teeth">
@@ -128,22 +129,18 @@
           {{/times_from}}
         </div>
       </div>
+      {{/traumacounter}}
     </div>
 
     <div id="character-{{_id}}-burnout-list" class="trauma-list">
-      <label><input type="checkbox" name="system.burnout.conditions.caution" {{checked system.burnout.conditions.caution}}><span class="checkmark">{{localize "CC.BurnoutCaution"}}</span></label>
-      <label><input type="checkbox" name="system.burnout.conditions.compassion" {{checked system.burnout.conditions.compassion}}><span class="checkmark">{{localize "CC.BurnoutCompassion"}}</span></label>
-      <label><input type="checkbox" name="system.burnout.conditions.conscience" {{checked system.burnout.conditions.conscience}}><span class="checkmark">{{localize "CC.BurnoutConscience"}}</span></label>
-      <label><input type="checkbox" name="system.burnout.conditions.hope" {{checked system.burnout.conditions.hope}}><span class="checkmark">{{localize "CC.BurnoutHope"}}</span></label>
-      <label><input type="checkbox" name="system.burnout.conditions.nerve" {{checked system.burnout.conditions.nerve}}><span class="checkmark">{{localize "CC.BurnoutNerve"}}</span></label>
-      <label><input type="checkbox" name="system.burnout.conditions.sobriety" {{checked system.burnout.conditions.sobriety}}><span class="checkmark">{{localize "CC.BurnoutSobriety"}}</span></label>
-      <label><input type="checkbox" name="system.burnout.conditions.stability" {{checked system.burnout.conditions.stability}}><span class="checkmark">{{localize "CC.BurnoutStability"}}</span></label>
-      <label><input type="checkbox" name="system.burnout.conditions.trust" {{checked system.burnout.conditions.trust}}><span class="checkmark">{{localize "CC.BurnoutTrust"}}</span></label>
+      {{#each system.burnout.conditions as |marked condition|}}
+      <label><input type="checkbox" name="system.burnout.conditions.{{condition}}" {{checked marked}} {{#if (and @root.burnoutFull (not marked))}}disabled{{/if}}><span class="checkmark">{{localize (concat "CC.Burnout" (pc condition))}}</span></label>
+      {{/each}}
     </div>
 
     <div id="character-{{_id}}-personal-trouble" class="personal-trouble">
       <div class="black-label">{{localize "CC.PersonalTrouble"}}</div>
-      {{{blades-clock "system.personal_trouble.value" 6 system.personal_trouble.value _id}}}
+      {{{blades-clock "system.personal_trouble.value" system.personal_trouble.max system.personal_trouble.value _id}}}
     </div>
   </div>
 

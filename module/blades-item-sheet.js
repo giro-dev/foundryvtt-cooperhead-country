@@ -75,7 +75,7 @@ export class BladesItemSheet extends BaseItemSheet {
 
   /** @override */
   async getData(options) {
-    const superData = super.getData( options );
+    const superData = await super.getData(options);
     const sheetData = superData.data;
 
     sheetData.isGM = game.user.isGM;

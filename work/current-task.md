@@ -44,6 +44,16 @@ Decisions acordades i encara vigents:
 - Sintaxi de tots els mòduls JS, JSON de manifest/model/localització i `git diff --check`: passats a l'última validació.
 - Auditoria de claus `CC.*` usades a templates: sense claus absents.
 
+### Revisió posterior (correccions)
+
+- Resistència: el pool és el rating d'atribut (accions amb almenys un punt + bonus), no només el bonus.
+- Tirades 0d: es llegeix el dau més baix i no poden ser crítiques (`getRollResult(..., { zeroDice: true })`).
+- Tirada de Trouble al Dice Roller amb ticks segons el setting `troubleCriticalTicks`.
+- Nivell de Heat a la fitxa de crew segons el setting `heatProfile` (`getHeatLevel`).
+- Burnout: els "teeth" reflecteixen les condicions marcades i no se'n poden marcar més que `burnout.max`.
+- Bugs: ids de rellotges amb `}` sobrant, `createListOfActions` començava amb `undefined`, `multiboxes` depenia de `RegExp.escape`, `getData` async sense `await`.
+- CI `.github/workflows/test.yml`: tests de regles, sintaxi JS, JSON i compilació de plantilles Handlebars.
+
 ### Pendents, ordre suggerit
 
 1. **Smoke test Foundry 14** (bloquejat fins a disposar d'instància): crear personatge/crew/campaign, obrir fitxes, guardar camps i rellotges, fer tirada d'acció i resistència, verificar Burnout/lesions i canviar approach.

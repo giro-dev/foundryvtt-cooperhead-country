@@ -24,7 +24,7 @@ export class BladesActorSheet extends BladesSheet {
 
     /** @override */
     async getData(options) {
-        const superData = super.getData(options);
+        const superData = await super.getData(options);
         const sheetData = superData.data;
         sheetData.owner = superData.owner;
         sheetData.editable = superData.editable;
@@ -52,6 +52,7 @@ export class BladesActorSheet extends BladesSheet {
         // Burnout is derived from the marked conditions, not entered by hand.
         const burnoutConditions = sheetData.system.burnout?.conditions ?? {};
         sheetData.system.burnout.value = Object.values(burnoutConditions).filter(Boolean).length;
+        sheetData.burnoutFull = sheetData.system.burnout.value >= (Number(sheetData.system.burnout.max) || 0);
         sheetData.system.stress.max = this.actor.getMaxStress();
 
         return sheetData;
