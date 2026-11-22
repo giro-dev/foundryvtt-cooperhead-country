@@ -118,6 +118,7 @@
     </div>
 
     <div id="character-{{_id}}-burnout-container" class="small-teeth-container">
+      {{#traumacounter system.burnout.conditions}}
       <div id="character-{{_id}}-burnout" class="small-teeth-wrap">
         <div class="black-label">{{localize "CC.Burnout"}}</div>
         <div id="character-{{_id}}-burnout-teeth" class="small-teeth">
@@ -128,22 +129,61 @@
           {{/times_from}}
         </div>
       </div>
+      {{/traumacounter}}
     </div>
 
     <div id="character-{{_id}}-burnout-list" class="trauma-list">
-      <label><input type="checkbox" name="system.burnout.conditions.caution" {{checked system.burnout.conditions.caution}}><span class="checkmark">{{localize "CC.BurnoutCaution"}}</span></label>
-      <label><input type="checkbox" name="system.burnout.conditions.compassion" {{checked system.burnout.conditions.compassion}}><span class="checkmark">{{localize "CC.BurnoutCompassion"}}</span></label>
-      <label><input type="checkbox" name="system.burnout.conditions.conscience" {{checked system.burnout.conditions.conscience}}><span class="checkmark">{{localize "CC.BurnoutConscience"}}</span></label>
-      <label><input type="checkbox" name="system.burnout.conditions.hope" {{checked system.burnout.conditions.hope}}><span class="checkmark">{{localize "CC.BurnoutHope"}}</span></label>
-      <label><input type="checkbox" name="system.burnout.conditions.nerve" {{checked system.burnout.conditions.nerve}}><span class="checkmark">{{localize "CC.BurnoutNerve"}}</span></label>
-      <label><input type="checkbox" name="system.burnout.conditions.sobriety" {{checked system.burnout.conditions.sobriety}}><span class="checkmark">{{localize "CC.BurnoutSobriety"}}</span></label>
-      <label><input type="checkbox" name="system.burnout.conditions.stability" {{checked system.burnout.conditions.stability}}><span class="checkmark">{{localize "CC.BurnoutStability"}}</span></label>
-      <label><input type="checkbox" name="system.burnout.conditions.trust" {{checked system.burnout.conditions.trust}}><span class="checkmark">{{localize "CC.BurnoutTrust"}}</span></label>
+      {{#each system.burnout.conditions as |marked condition|}}
+      <label><input type="checkbox" name="system.burnout.conditions.{{condition}}" {{checked marked}} {{#if (and @root.burnoutFull (not marked))}}disabled{{/if}}><span class="checkmark">{{localize (concat "CC.Burnout" (pc condition))}}</span></label>
+      {{/each}}
     </div>
 
     <div id="character-{{_id}}-personal-trouble" class="personal-trouble">
       <div class="black-label">{{localize "CC.PersonalTrouble"}}</div>
-      {{{blades-clock "system.personal_trouble.value" 6 system.personal_trouble.value _id}}}
+      {{{blades-clock "system.personal_trouble.value" system.personal_trouble.max system.personal_trouble.value _id}}}
+      {{#if editable}}
+      <a class="cc-personal-trouble-roll" data-tooltip="{{localize 'CC.RollTrouble'}}"><i class="fas fa-dice"></i> {{localize "CC.RollTrouble"}}</a>
+      {{/if}}
+    </div>
+
+    <div id="character-{{_id}}-downtime" class="cc-downtime">
+      <div class="black-label">{{localize "CC.Downtime"}}</div>
+      <div class="gray-label" {{#unless downtime.hasCrew}}data-tooltip="{{localize 'CC.DowntimeNoCrew'}}"{{/unless}}>{{localize "CC.DowntimeUsed"}}: {{downtime.used}}/{{downtime.allowance}}
+        {{#if isGM}}<a class="cc-downtime-reset" data-tooltip="{{localize 'CC.DowntimeReset'}}"><i class="fas fa-rotate-left"></i></a>{{/if}}
+      </div>
+      {{#if editable}}
+      <div class="cc-downtime-activities flex-horizontal">
+        {{#each downtime.activities as |activity|}}
+        <a class="cc-downtime-activity {{#if @root.downtime.exhausted}}exhausted{{/if}}" data-activity="{{activity.key}}">{{localize activity.label}}</a>
+        {{/each}}
+      </div>
+      {{/if}}
+      {{#if downtime.rnr}}<div class="gray-label">{{localize "CC.DowntimeRnrDone"}}</div>{{/if}}
+      <div class="label-stripe flex-horizontal">
+        <p><label>{{localize "CC.Projects"}}</label></p>
+        {{#if editable}}<p><a class="cc-add-project" data-tooltip="{{localize 'CC.AddProject'}}"><i class="fas fa-plus-square"></i></a></p>{{/if}}
+      </div>
+      {{#each projects as |entry|}}
+      <div class="cc-track flex-horizontal" data-entry-id="{{entry.id}}">
+        {{#if @root.editable}}
+        <input type="text" class="cc-project-field" data-field="name" value="{{entry.name}}" placeholder="{{localize 'CC.Project'}}">
+        {{else}}
+        <span class="cc-track-name">{{entry.name}}</span>
+        {{/if}}
+        <span class="cc-pips">{{#times_from 1 entry.max}}<span class="cc-pip {{#if (lteq this ../entry.value)}}filled{{/if}}"></span>{{/times_from}}</span>
+        {{#if @root.editable}}
+        <a class="cc-project-tick" data-ticks="-1" data-tooltip="{{localize 'CC.UntickClock'}}"><i class="fas fa-minus"></i></a>
+        <a class="cc-project-tick" data-ticks="1" data-tooltip="{{localize 'CC.TickClock'}}"><i class="fas fa-plus"></i></a>
+        <select class="cc-project-field" data-field="max" data-dtype="Number" data-tooltip="{{localize 'CC.ClockSize'}}">
+          {{#each @root.clockSizes as |size|}}<option value="{{size}}" {{#if (eq size ../entry.max)}}selected{{/if}}>{{size}}</option>{{/each}}
+        </select>
+        <a class="cc-project-delete" data-tooltip="{{localize 'BITD.TitleDeleteItem'}}"><i class="fas fa-trash"></i></a>
+        {{/if}}
+      </div>
+      {{/each}}
+      {{#if editable}}
+      <a class="cc-assert-innocence" data-tooltip="{{localize 'CC.AssertInnocenceHint'}}"><i class="fas fa-gavel"></i> {{localize "CC.AssertInnocence"}}</a>
+      {{/if}}
     </div>
   </div>
 

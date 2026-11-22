@@ -21,7 +21,28 @@
     <div>
       <div class="black-label">{{localize "CC.TensionClock"}}</div>
       {{{blades-clock "system.tension_clock" system.tension_clock_max system.tension_clock _id}}}
+      {{#if editable}}
+      <a class="cc-tension-tick" data-ticks="-1" data-tooltip="{{localize 'CC.UntickClock'}}"><i class="fas fa-minus"></i></a>
+      <a class="cc-tension-tick" data-ticks="1" data-tooltip="{{localize 'CC.TickClock'}}"><i class="fas fa-plus"></i></a>
+      <div class="gray-label">{{localize tensionDescription}}</div>
+      {{/if}}
     </div>
+  </section>
+
+  <section class="flex-vertical cc-trouble-tracks">
+    <div class="label-stripe flex-horizontal">
+      <p>{{localize "CC.TroubleTracks"}}</p>
+      {{#if editable}}
+      <p>
+        {{#each troubleTypes as |type|}}
+        <a class="cc-add-trouble" data-type="{{type.key}}" data-tooltip="{{localize 'CC.AddTrouble'}}"><i class="fas fa-plus-square"></i> {{localize type.label}}</a>
+        {{/each}}
+      </p>
+      {{/if}}
+    </div>
+    {{#each troubles as |entry|}}
+    {{> "systems/copperhead-county/templates/parts/trouble-track.html" entry=entry editable=@root.editable}}
+    {{/each}}
   </section>
 
   <section class="flex-vertical">

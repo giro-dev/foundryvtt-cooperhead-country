@@ -1,6 +1,6 @@
 import { renderHandlebarsTemplate as renderTemplate } from "./compat.js";
 import { openFormDialog } from "./lib/dialog-compat.js";
-import { getResistanceStress } from "./copperhead-rules.js";
+import { getResistanceStress, getRollResult, getTroubleTicks } from "./copperhead-rules.js";
 
 /**
  * Roll Dice.
@@ -22,6 +22,7 @@ export async function bladesRoll(dice_amount, attribute_name = "", position = "r
 	// show 3d Dice so Nice if enabled
 	await r.evaluate();
 	await showChatRollMessage(r, zeromode, attribute_name, position, effect, note, current_stress, current_crew_tier);
+	return { roll: r, zeromode, status: getBladesRollStatus(r.terms[0].results, zeromode) };
 
 }
 
@@ -92,6 +93,12 @@ async function showChatRollMessage(r, zeromode, attribute_name = "", position = 
   else if (attribute_name == 'BITD.GatherInformation') {
     result = await renderTemplate("systems/copperhead-county/templates/chat/gather-info-roll.html", {rolls: rolls, zeromode: zeromode, method: method, roll_status: roll_status, attribute_label: attribute_label, note: note, edge: edge});
   }
+  // Trouble roll: ticks on the Trouble clock depend on the result band.
+  else if (attribute_name == 'CC.TroubleRoll') {
+    const criticalTicks = game.settings.get('copperhead-county', 'troubleCriticalTicks');
+    const ticks = getTroubleTicks(roll_status, criticalTicks);
+    result = await renderTemplate("systems/copperhead-county/templates/chat/trouble-roll.html", {rolls: rolls, zeromode: zeromode, method: method, roll_status: roll_status, attribute_label: attribute_label, ticks: ticks, note: note});
+  }
   // Check for Engagement roll
   else if (attribute_name == 'BITD.Engagement') {
     result = await renderTemplate("systems/copperhead-county/templates/chat/engagement-roll.html", {rolls: rolls, zeromode: zeromode, method: method, roll_status: roll_status, attribute_label: attribute_label, note: note, edge: edge});
@@ -130,54 +137,7 @@ async function showChatRollMessage(r, zeromode, attribute_name = "", position = 
  * @param {Boolean} zeromode
  */
 export function getBladesRollStatus(rolls, zeromode = false) {
-
-  // Sort roll values from lowest to highest.
-  let sorted_rolls = rolls.map(i => i.result).sort();
-
-  let roll_status = "failure"
-
-  if (sorted_rolls[0] === 6 && zeromode) {
-    roll_status = "success";
-  }
-  else {
-    let use_die;
-    let prev_use_die = false;
-
-    if (zeromode) {
-      use_die = sorted_rolls[0];
-    }
-    else {
-      use_die = sorted_rolls[sorted_rolls.length - 1];
-
-      if (sorted_rolls.length - 2 >= 0) {
-        prev_use_die = sorted_rolls[sorted_rolls.length - 2]
-      }
-    }
-
-    // 1,2,3 = failure
-    if (use_die <= 3) {
-      roll_status = "failure";
-    }
-    // if 6 - check the prev highest one.
-    else if (use_die === 6) {
-      // 6,6 - critical success
-      if (prev_use_die && prev_use_die === 6) {
-        roll_status = "critical-success";
-      }
-      // 6 - success
-      else {
-        roll_status = "success";
-      }
-    }
-    // else (4,5) = partial success
-    else {
-      roll_status = "partial-success";
-    }
-
-  }
-
-  return roll_status;
-
+  return getRollResult(rolls.map((die) => die.result), { zeroDice: zeromode });
 }
 /**
  * Get stress of the Roll.
@@ -234,6 +194,8 @@ export async function simpleRollPopup() {
             <span style="grid-column:2 / 4;"></span>
             <label><input type="radio" id="engagement" name="rollSelection" value="engagement"> ${game.i18n.localize("BITD.Engagement")}</label>
             <span style="grid-column:2 / 4;"></span>
+            <label><input type="radio" id="trouble" name="rollSelection" value="trouble"> ${game.i18n.localize("CC.TroubleRoll")}</label>
+            <span style="grid-column:2 / 4;"></span>
           </div>
         </fieldset>
         <div className="form-group">
@@ -264,6 +226,9 @@ export async function simpleRollPopup() {
       break;
     case 'engagement':
       await bladesRoll(diceQty,"BITD.Engagement","","",note,"");
+      break;
+    case 'trouble':
+      await bladesRoll(diceQty,"CC.TroubleRoll","","",note,"");
       break;
     default:
       await bladesRoll(diceQty,"","","",note,"");

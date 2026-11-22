@@ -44,6 +44,33 @@ Decisions acordades i encara vigents:
 - Sintaxi de tots els mòduls JS, JSON de manifest/model/localització i `git diff --check`: passats a l'última validació.
 - Auditoria de claus `CC.*` usades a templates: sense claus absents.
 
+### Revisió posterior (correccions)
+
+- Resistència: el pool és el rating d'atribut (accions amb almenys un punt + bonus), no només el bonus.
+- Tirades 0d: es llegeix el dau més baix i no poden ser crítiques (`getRollResult(..., { zeroDice: true })`).
+- Tirada de Trouble al Dice Roller amb ticks segons el setting `troubleCriticalTicks`.
+- Nivell de Heat a la fitxa de crew segons el setting `heatProfile` (`getHeatLevel`).
+- Burnout: els "teeth" reflecteixen les condicions marcades i no se'n poden marcar més que `burnout.max`.
+- Bugs: ids de rellotges amb `}` sobrant, `createListOfActions` començava amb `undefined`, `multiboxes` depenia de `RegExp.escape`, `getData` async sense `await`.
+- CI `.github/workflows/test.yml`: tests de regles, sintaxi JS, JSON i compilació de plantilles Handlebars.
+
+### Automatització (punts 3, 4 i 5, parcial)
+
+- Campanya: llista de pistes de Trouble (`system.troubles`: personal/crew/police/faction) amb rellotge, +/−, tirada de Trouble que hi suma els ticks i avís al xat quan s'omple; botó per avançar el Tension Clock.
+- Crew: tirada de Crew Trouble que omple `trouble_clock`; claims propis (`system.claims`: nom, categoria, estat none/present/controlled, notes) amb resum; el turf del crew playbook heretat es manté a part.
+- Downtime: activitats per personatge segons el perfil del crew (Low 1, High 2), registre al xat i bloqueig quan s'esgoten; botó de GM "Start downtime" que reinicia el comptador dels membres.
+- Personal Trouble: tirada que omple el rellotge del personatge.
+- Ampliat amb el llibre (2021) i els fulls (2022):
+  - Rellotges: en omplir-se es reinicien i els ticks sobrants es conserven.
+  - Trouble: pool suggerit (Burnout, Tier; Raid i Tier de facció a mà), +1d per mort relacionada amb la crew i +1d per facció en guerra.
+  - Downtime: Low resta `6 − Tier` de Heat, High no; activitat extra pagant 1 Cash; +1d per ajuda.
+  - R&R (Bank, elimina el dau més alt, avís de conseqüència), Project (rellotges `system.projects`, 1/2/3/5 ticks), Put in Work (+1 Cash a PJ o crew), Recover (Bank o 0d sense gastar activitat; resultat al xat).
+  - "Income & wrap-up": la crew guanya `Income + Tier` Cash i qui no ha fet R&R pateix estrès igual al Burnout.
+  - Claims amb categoria Drugs/Vice/Theft/Front/Turf; Turf Present = ½, Controlled = 1; indicador de Tier disponible.
+  - Raid ple: avís al xat (GM actiu), bloqueig del downtime, fiança mínima `Tier + Raid`, tirada "Assert innocence" (meitat del Bank).
+  - County Tension: el rellotge puja/baixa el nivell 0–4 i mostra la descripció del nivell.
+- Encara manual: preus de Buy Stuff, aplicar el pas d'Injury a Recover, Rep per activitats extra, conversió Heat→Raid, increment d'Income per claims `$`/`$$`.
+
 ### Pendents, ordre suggerit
 
 1. **Smoke test Foundry 14** (bloquejat fins a disposar d'instància): crear personatge/crew/campaign, obrir fitxes, guardar camps i rellotges, fer tirada d'acció i resistència, verificar Burnout/lesions i canviar approach.

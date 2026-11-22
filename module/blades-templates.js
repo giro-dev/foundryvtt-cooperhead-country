@@ -17,6 +17,7 @@ export const preloadHandlebarsTemplates = async function() {
     "systems/copperhead-county/templates/parts/cohort-block.html",
     "systems/copperhead-county/templates/parts/factions.html",
     "systems/copperhead-county/templates/parts/active-effects.html",
+    "systems/copperhead-county/templates/parts/trouble-track.html",
   ];
 
   // Load the template parts

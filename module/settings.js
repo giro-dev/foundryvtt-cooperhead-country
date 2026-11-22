@@ -1,22 +1,22 @@
 export const registerSystemSettings = function() {
 
   game.settings.register("copperhead-county", "troubleCriticalTicks", {
-    name: "Copperhead County | Critical Trouble ticks",
-    hint: "The 2021 corebook uses 4 ticks; the 2022 playbooks use 5.",
+    name: "CC.Settings.TroubleCriticalTicks.Name",
+    hint: "CC.Settings.TroubleCriticalTicks.Hint",
     scope: "world",
     config: true,
     type: Number,
-    choices: { 5: "2022 playbooks (default)", 4: "2021 corebook" },
+    choices: { 5: "CC.Settings.TroubleCriticalTicks.Sheets2022", 4: "CC.Settings.TroubleCriticalTicks.Corebook2021" },
     default: 5
   });
 
   game.settings.register("copperhead-county", "heatProfile", {
-    name: "Copperhead County | Heat thresholds",
-    hint: "Choose the Heat labels shown in the reference sheets.",
+    name: "CC.Settings.HeatProfile.Name",
+    hint: "CC.Settings.HeatProfile.Hint",
     scope: "world",
     config: true,
     type: String,
-    choices: { sheets2022: "2022 playbooks (0/2/4/6/8)", corebook2021: "2021 corebook (0/3/6/9)" },
+    choices: { sheets2022: "CC.Settings.HeatProfile.Sheets2022", corebook2021: "CC.Settings.HeatProfile.Corebook2021" },
     default: "sheets2022"
   });
 

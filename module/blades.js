@@ -19,6 +19,7 @@ import { BladesClockSheet } from "./blades-clock-sheet.js";
 import { BladesNPCSheet } from "./blades-npc-sheet.js";
 import { BladesFactionSheet } from "./blades-faction-sheet.js";
 import { BladesCampaignSheet } from "./blades-campaign-sheet.js";
+import { announceRaid } from "./copperhead-automation.js";
 import * as migrations from "./migration.js";
 import { getActorSheetClass, getItemSheetClass, registerActorSheet, unregisterActorSheet, registerItemSheet, unregisterItemSheet } from "./compat.js";
 
@@ -81,14 +82,15 @@ Hooks.once("init", async function() {
     if (typeof selected !== 'undefined') {
       selected.forEach(selected_value => {
         if (selected_value !== false) {
-          let escapedValue = RegExp.escape(Handlebars.escapeExpression(selected_value));
-          let rgx = new RegExp(' value=\"' + escapedValue + '\"');
+          const escape = (value) => String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+          const value = Handlebars.escapeExpression(selected_value);
           let oldHtml = html;
-          html = html.replace(rgx, "$& checked");
-          while( ( oldHtml === html ) && ( escapedValue >= 0 ) ){
-            escapedValue--;
-            rgx = new RegExp(' value=\"' + escapedValue + '\"');
-            html = html.replace(rgx, "$& checked");
+          html = html.replace(new RegExp(' value="' + escape(value) + '"'), "$& checked");
+          // Numeric values above the highest box fall back to the nearest lower box.
+          let numeric = Number(value);
+          while ( ( oldHtml === html ) && Number.isFinite(numeric) && ( numeric > 0 ) ) {
+            numeric--;
+            html = html.replace(new RegExp(' value="' + numeric + '"'), "$& checked");
           }
         }
       });
@@ -257,11 +259,11 @@ Hooks.once("init", async function() {
     }
 
     // Label for 0
-    html += `<label class="clock-zero-label" for="clock-0-${uniq_id}}"><i class="fab fa-creative-commons-zero nullifier"></i></label>`;
+    html += `<label class="clock-zero-label" for="clock-0-${uniq_id}"><i class="fab fa-creative-commons-zero nullifier"></i></label>`;
     html += `<div id="blades-clock-${uniq_id}" class="blades-clock clock-${type} clock-${type}-${current_value}" style="background-image:url('systems/copperhead-county/themes/${color}/${type}clock_${current_value}.svg');">`;
 
     let zero_checked = (parseInt(current_value) === 0) ? 'checked' : '';
-    html += `<input type="radio" value="0" id="clock-0-${uniq_id}}" data-dType="String" name="${parameter_name}" ${zero_checked}>`;
+    html += `<input type="radio" value="0" id="clock-0-${uniq_id}" data-dType="String" name="${parameter_name}" ${zero_checked}>`;
 
     for (let i = 1; i <= parseInt(type); i++) {
       let checked = (parseInt(current_value) === i) ? 'checked' : '';
@@ -288,11 +290,11 @@ Hooks.once("init", async function() {
     }
 
     // Label for 0
-    html += `<label class="clock-zero-label" for="clock-0-${uniq_id}}"><i class="fab fa-creative-commons-zero nullifier"></i></label>`;
+    html += `<label class="clock-zero-label" for="clock-0-${uniq_id}"><i class="fab fa-creative-commons-zero nullifier"></i></label>`;
     html += `<div id="blades-clock-${uniq_id}" class="blades-clock clock-${type} clock-${type}-${current_value}" style="background-image:url('systems/copperhead-county/themes/black/${type}clock_${current_value}.svg');">`;
 
     let zero_checked = (parseInt(current_value) === 0) ? 'checked' : '';
-    html += `<input type="radio" value="0" id="clock-0-${uniq_id}}" data-dType="String" name="${parameter_name}" ${zero_checked}>`;
+    html += `<input type="radio" value="0" id="clock-0-${uniq_id}" data-dType="String" name="${parameter_name}" ${zero_checked}>`;
 
     for (let i = 1; i <= parseInt(type); i++) {
       let checked = (parseInt(current_value) === i) ? 'checked' : '';
@@ -323,6 +325,14 @@ Hooks.once("init", async function() {
  * API and the new foundry.documents collections are guaranteed to exist on V13+ while still
  * allowing the compatibility helpers to fall back on older cores.
  */
+// Raids: when a crew's Raid track fills, stop and resolve the Raid instead of entering downtime.
+Hooks.on("updateActor", (actor, changes) => {
+  if (actor.type !== "crew" || !foundry.utils.hasProperty(changes, "system.raid")) return;
+  if (game.users.activeGM?.id !== game.user.id) return;
+  const raid = Number([].concat(actor.system.raid)[0]) || 0;
+  if (raid >= (Number(actor.system.raid_max) || 4)) announceRaid(actor);
+});
+
 Hooks.once("ready", async function() {
   const actorSheetClass = getActorSheetClass();
   const itemSheetClass = getItemSheetClass();

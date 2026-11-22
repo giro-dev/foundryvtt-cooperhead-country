@@ -2,6 +2,9 @@ import {BladesSheet} from "./blades-sheet.js";
 import {BladesActiveEffect} from "./blades-active-effect.js";
 import {BladesHelpers} from "./blades-helpers.js";
 import { enrichHTML } from "./compat.js";
+import { DOWNTIME_ACTIVITIES } from "./copperhead-rules.js";
+import { addListEntry, assertInnocence, deleteListEntry, getCharacterCrew, getDowntimeAllowance, labelKey, logDowntimeActivity, rollTroubleForClock, tickListClock, updateListEntry } from "./copperhead-automation.js";
+import { CLOCK_SIZES } from "./blades-campaign-sheet.js";
 
 /**
  * Extend the basic ActorSheet with some very simple modifications
@@ -24,7 +27,7 @@ export class BladesActorSheet extends BladesSheet {
 
     /** @override */
     async getData(options) {
-        const superData = super.getData(options);
+        const superData = await super.getData(options);
         const sheetData = superData.data;
         sheetData.owner = superData.owner;
         sheetData.editable = superData.editable;
@@ -52,7 +55,21 @@ export class BladesActorSheet extends BladesSheet {
         // Burnout is derived from the marked conditions, not entered by hand.
         const burnoutConditions = sheetData.system.burnout?.conditions ?? {};
         sheetData.system.burnout.value = Object.values(burnoutConditions).filter(Boolean).length;
+        sheetData.burnoutFull = sheetData.system.burnout.value >= (Number(sheetData.system.burnout.max) || 0);
         sheetData.system.stress.max = this.actor.getMaxStress();
+
+        const downtimeUsed = Number(sheetData.system.downtime?.used) || 0;
+        const downtimeAllowance = getDowntimeAllowance(this.actor);
+        sheetData.downtime = {
+            used: downtimeUsed,
+            allowance: downtimeAllowance,
+            exhausted: downtimeUsed >= downtimeAllowance,
+            hasCrew: Boolean(getCharacterCrew(this.actor)),
+            activities: DOWNTIME_ACTIVITIES.map((key) => ({ key, label: labelKey("CC.Downtime", key) })),
+            rnr: Boolean(sheetData.system.downtime?.rnr),
+        };
+        sheetData.projects = sheetData.system.projects ?? [];
+        sheetData.clockSizes = CLOCK_SIZES;
 
         return sheetData;
     }
@@ -118,6 +135,34 @@ export class BladesActorSheet extends BladesSheet {
         html.find('.add-custom-contact').click(() => {
             BladesHelpers.addCustomContact(this.actor);
         });
+
+        html.find('.cc-personal-trouble-roll').click(() => {
+            const trouble = this.actor.system.personal_trouble;
+            const burnout = Object.values(this.actor.system.burnout?.conditions ?? {}).filter(Boolean).length;
+            rollTroubleForClock(this.actor, "system.personal_trouble.value", trouble?.max ?? 6, game.i18n.localize("CC.PersonalTrouble"), { dice: burnout });
+        });
+
+        html.find('.cc-downtime-activity').click((ev) => logDowntimeActivity(this.actor, ev.currentTarget.dataset.activity));
+        html.find('.cc-downtime-reset').click(() => this.actor.update({ "system.downtime.used": 0, "system.downtime.rnr": false }));
+        html.find('.cc-assert-innocence').click(() => assertInnocence(this.actor));
+
+        // Projects
+        const PROJECTS = "system.projects";
+        const entryId = (ev) => ev.currentTarget.closest("[data-entry-id]")?.dataset.entryId;
+        html.find('.cc-add-project').click(() => addListEntry(this.actor, PROJECTS, { name: "", value: 0, max: 8 }));
+        html.find('.cc-project-tick').click((ev) => tickListClock(this.actor, PROJECTS, entryId(ev), Number(ev.currentTarget.dataset.ticks) || 0));
+        html.find('.cc-project-field').change((ev) => {
+            ev.stopPropagation();
+            const { field, dtype } = ev.currentTarget.dataset;
+            const value = dtype === "Number" ? Number(ev.currentTarget.value) : ev.currentTarget.value;
+            const changes = { [field]: value };
+            if (field === "max") {
+                const entry = (this.actor.system.projects ?? []).find((e) => e.id === entryId(ev));
+                changes.value = Math.min(Number(entry?.value) || 0, value);
+            }
+            updateListEntry(this.actor, PROJECTS, entryId(ev), changes);
+        });
+        html.find('.cc-project-delete').click((ev) => deleteListEntry(this.actor, PROJECTS, entryId(ev)));
 
         // Burnout conditions drive the number of marked Burnout boxes.
         html.find('input[name^="system.burnout.conditions."]').change(async () => {

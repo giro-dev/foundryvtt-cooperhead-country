@@ -1,0 +1,29 @@
+name: Tests
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Rules tests
+        run: node --experimental-default-type=module --test tests/copperhead-rules.test.mjs
+      - name: JavaScript syntax
+        run: for f in module/*.js module/lib/*.js; do node --check --experimental-default-type=module "$f"; done
+      - name: JSON
+        run: for f in system.json template.json lang/*.json; do node -e "JSON.parse(require('fs').readFileSync('$f','utf8'))"; done
+      - name: Handlebars templates
+        run: |
+          npm install --no-save handlebars@4
+          node -e '
+            const H = require("handlebars"), fs = require("fs"), path = require("path");
+            const walk = (d) => fs.readdirSync(d, { withFileTypes: true }).flatMap((e) => e.isDirectory() ? walk(path.join(d, e.name)) : [path.join(d, e.name)]);
+            for (const f of walk("templates").filter((f) => f.endsWith(".html"))) H.precompile(fs.readFileSync(f, "utf8"), { srcName: f });
+          '

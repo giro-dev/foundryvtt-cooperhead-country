@@ -1,0 +1,18 @@
+<div class="cc-track flex-horizontal" data-entry-id="{{entry.id}}">
+  {{#if editable}}
+  <input type="text" class="cc-entry-field" data-field="name" value="{{entry.name}}" placeholder="{{localize 'CC.TrackName'}}">
+  {{else}}
+  <span class="cc-track-name">{{entry.name}}</span>
+  {{/if}}
+  <span class="gray-label">{{localize entry.typeLabel}}</span>
+  <span class="cc-pips">{{#times_from 1 entry.max}}<span class="cc-pip {{#if (lteq this ../entry.value)}}filled{{/if}}"></span>{{/times_from}}</span>
+  {{#if editable}}
+  <a class="cc-track-tick" data-ticks="-1" data-tooltip="{{localize 'CC.UntickClock'}}"><i class="fas fa-minus"></i></a>
+  <a class="cc-track-tick" data-ticks="1" data-tooltip="{{localize 'CC.TickClock'}}"><i class="fas fa-plus"></i></a>
+  <a class="cc-track-roll" data-tooltip="{{localize 'CC.RollTrouble'}}"><i class="fas fa-dice"></i></a>
+  <select class="cc-entry-field" data-field="max" data-dtype="Number" data-tooltip="{{localize 'CC.ClockSize'}}">
+    {{#each @root.clockSizes as |size|}}<option value="{{size}}" {{#if (eq size ../entry.max)}}selected{{/if}}>{{size}}</option>{{/each}}
+  </select>
+  <a class="cc-entry-delete" data-tooltip="{{localize 'BITD.TitleDeleteItem'}}"><i class="fas fa-trash"></i></a>
+  {{/if}}
+</div>

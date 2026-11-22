@@ -1971,4 +1971,40 @@ dialog.dialog .dialog-content input[type=checkbox]:checked + label {
 }
 
 
+/* Copperhead automation: Trouble tracks, claims and downtime */
+.copperhead-county .cc-track,
+.copperhead-county .cc-claim {
+  align-items: center;
+  gap: 4px;
+  padding: 2px 0;
+}
+.copperhead-county .cc-track input[type=text],
+.copperhead-county .cc-claim input[type=text] {
+  flex: 1;
+}
+.copperhead-county .cc-track select {
+  width: 4em;
+}
+.copperhead-county .cc-pips {
+  display: inline-flex;
+  gap: 2px;
+}
+.copperhead-county .cc-pip {
+  width: 10px;
+  height: 10px;
+  border: 1px solid #222;
+  transform: skew(-15deg);
+}
+.copperhead-county .cc-pip.filled {
+  background: #8b1a1a;
+}
+.copperhead-county .cc-downtime-activities {
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.copperhead-county .cc-downtime-activity.exhausted {
+  opacity: 0.6;
+}
+
+
 /*# sourceMappingURL=blades.css.map */
