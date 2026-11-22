@@ -264,7 +264,11 @@ export class BladesHelpers {
   static async importAcquaintance(actor, acqId) {
     //try to import from a compendium
     try {
-      let new_actor = await game.actors.importFromCompendium(game.packs.get("blades-in-the-dark.npc"), acqId);
+      let npcPack = game.packs.get("copperhead-county.npc");
+      if (!npcPack) {
+        throw new Error("The Copperhead County NPC compendium is not available.");
+      }
+      let new_actor = await game.actors.importFromCompendium(npcPack, acqId);
       //get the UUID of newly created actor
       let new_id = new_actor.id;
       console.log(new_id);

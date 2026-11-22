@@ -14,7 +14,7 @@ export class BladesItemSheet extends BaseItemSheet {
 	static get defaultOptions() {
 
 	  return foundry.utils.mergeObject(super.defaultOptions, {
-			classes: ["blades-in-the-dark", "sheet", "item"],
+			classes: ["copperhead-county", "sheet", "item"],
 			width: 560,
 			height: 'auto',
       tabs: [{navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "description"}]
@@ -25,7 +25,7 @@ export class BladesItemSheet extends BaseItemSheet {
 
   /** @override */
   get template() {
-    const path = "systems/blades-in-the-dark/templates/items";
+    const path = "systems/copperhead-county/templates/items";
     let simple_item_types = ["background", "heritage", "vice", "crew_reputation"];
     let template_name = `${this.item.type}`;
 

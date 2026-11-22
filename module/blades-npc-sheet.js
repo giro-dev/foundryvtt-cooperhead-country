@@ -10,8 +10,8 @@ export class BladesNPCSheet extends BladesSheet {
   /** @override */
 	static get defaultOptions() {
 	  return foundry.utils.mergeObject(super.defaultOptions, {
-  	  classes: ["blades-in-the-dark", "sheet", "actor"],
-  	  template: "systems/blades-in-the-dark/templates/npc-sheet.html",
+      classes: ["copperhead-county", "sheet", "actor"],
+      template: "systems/copperhead-county/templates/npc-sheet.html",
       width: 900,
       height: 'auto',
       tabs: [{navSelector: ".tabs", contentSelector: ".tab-content"}]

@@ -1,9 +1,29 @@
 export const registerSystemSettings = function() {
 
+  game.settings.register("copperhead-county", "troubleCriticalTicks", {
+    name: "Copperhead County | Critical Trouble ticks",
+    hint: "The 2021 corebook uses 4 ticks; the 2022 playbooks use 5.",
+    scope: "world",
+    config: true,
+    type: Number,
+    choices: { 5: "2022 playbooks (default)", 4: "2021 corebook" },
+    default: 5
+  });
+
+  game.settings.register("copperhead-county", "heatProfile", {
+    name: "Copperhead County | Heat thresholds",
+    hint: "Choose the Heat labels shown in the reference sheets.",
+    scope: "world",
+    config: true,
+    type: String,
+    choices: { sheets2022: "2022 playbooks (0/2/4/6/8)", corebook2021: "2021 corebook (0/3/6/9)" },
+    default: "sheets2022"
+  });
+
   /**
    * Track the system version upon which point a migration was last applied
    */
-  game.settings.register("bitd", "systemMigrationVersion", {
+  game.settings.register("copperhead-county", "systemMigrationVersion", {
     name: "System Migration Version",
     scope: "world",
     config: false,
@@ -13,7 +33,7 @@ export const registerSystemSettings = function() {
   
   if (foundry.utils.isNewerVersion(game.version, 12)) {
 
-    game.settings.register('blades-in-the-dark', 'ActionRoll', {
+    game.settings.register('copperhead-county', 'ActionRoll', {
 	name: game.i18n.localize('BITD.Settings.Action.Name'),
 	hint: game.i18n.localize('BITD.Settings.Action.Hint'),
 	config: true,
@@ -23,34 +43,7 @@ export const registerSystemSettings = function() {
 	requiresReload: true
   });
 	
-	game.settings.register('blades-in-the-dark', 'ThreatRoll', {
-	name: game.i18n.localize('BITD.Settings.Threat.Name'),
-	hint: game.i18n.localize('BITD.Settings.Threat.Hint'),
-	config: true,
-	scope: 'world',
-	type: new foundry.data.fields.BooleanField(),
-	requiresReload: true
-  });
-  
-  game.settings.register('blades-in-the-dark', 'PushYourself', {
-	name: game.i18n.localize('BITD.Settings.Push.Name'),
-	hint: game.i18n.localize('BITD.Settings.Push.Hint'),
-	config: true,
-	scope: 'world',
-	type: new foundry.data.fields.BooleanField(),
-	requiresReload: true
-  });
-  
-    game.settings.register('blades-in-the-dark', 'DeepCutLoad', {
-	name: game.i18n.localize('BITD.Settings.Load.Name'),
-	hint: game.i18n.localize('BITD.Settings.Load.Hint'),
-	config: true,
-	scope: 'world',
-	type: new foundry.data.fields.BooleanField(),
-	requiresReload: true
-  });
-  
-    game.settings.register('blades-in-the-dark', 'ClockXP', {
+    game.settings.register('copperhead-county', 'ClockXP', {
 	name: game.i18n.localize('BITD.Settings.ClockXP.Name'),
 	hint: game.i18n.localize('BITD.Settings.ClockXP.Hint'),
 	config: true,
@@ -59,16 +52,7 @@ export const registerSystemSettings = function() {
 	requiresReload: true
   });
   
-    game.settings.register('blades-in-the-dark', 'Edge', {
-	name: game.i18n.localize('BITD.Settings.Edge.Name'),
-	hint: game.i18n.localize('BITD.Settings.Edge.Hint'),
-	config: true,
-	scope: 'world',
-	type: new foundry.data.fields.BooleanField(),
-	requiresReload: true
-  });
-  
-  	game.settings.register('blades-in-the-dark', 'PublicClocks', {
+	game.settings.register('copperhead-county', 'PublicClocks', {
 	name: game.i18n.localize('BITD.Settings.PublicClocks.Name'),
 	hint: game.i18n.localize('BITD.Settings.PublicClocks.Hint'),
 	config: true,
@@ -82,17 +66,13 @@ export const registerSystemSettings = function() {
 	  
   const set_array = [
     ['ActionRoll','Action', true],
-    ['ThreatRoll','Threat', false],
-    ['PushYourself','Push', false],
-    ['DeepCutLoad','Load', false],
     ['ClockXP','ClockXP', false],
-    ['Edge','Edge', false],
     ['PublicClocks','PublicClocks', false]
   ];
  
   for (let i=0; i<set_array.length; i++) {
 	  
-	game.settings.register('blades-in-the-dark', set_array[i][0], {
+	game.settings.register('copperhead-county', set_array[i][0], {
 		name: game.i18n.localize('BITD.Settings.'+set_array[i][1]+'.Name'),
 		hint: game.i18n.localize('BITD.Settings.'+set_array[i][1]+'.Hint'),
 		config: true,

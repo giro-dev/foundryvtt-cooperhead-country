@@ -12,8 +12,8 @@ export class BladesActorSheet extends BladesSheet {
     /** @override */
     static get defaultOptions() {
         return foundry.utils.mergeObject(super.defaultOptions, {
-            classes: ["blades-in-the-dark", "sheet", "actor", "pc"],
-            template: "systems/blades-in-the-dark/templates/actor-sheet.html",
+            classes: ["copperhead-county", "sheet", "actor", "pc"],
+            template: "systems/copperhead-county/templates/actor-sheet.html",
             width: 790,
             height: 890,
             tabs: [{navSelector: ".tabs", contentSelector: ".tab-content", initial: "abilities"}]
@@ -33,78 +33,26 @@ export class BladesActorSheet extends BladesSheet {
         // Prepare active effects
         sheetData.effects = BladesActiveEffect.prepareActiveEffectCategories(this.actor.effects);
 
-        // Calculate Load
+        // Loadout is capped by the approach chosen for the job: Hot 6, Cold 3.
         let loadout = 0;
         sheetData.items.forEach(i => {
-            loadout += (i.type === "item") ? parseInt(i.system.load) : 0
+            loadout += (i.type === "item") ? parseInt(i.system.load) || 0 : 0;
         });
-
-        //Sanity Check
-        if (loadout < 0) {
-            loadout = 0;
-        }
-        if (loadout > 11) {
-            loadout = 11;
-        }
-
-        sheetData.system.loadout = loadout;
-
-        // Encumbrance Levels
-        let load_level;
-        let mule_level;
-        if (game.settings.get('blades-in-the-dark', 'DeepCutLoad')) {
-            load_level = ["BITD.Discreet", "BITD.Discreet", "BITD.Discreet", "BITD.Discreet", "BITD.Discreet", "BITD.Conspicuous", "BITD.Conspicuous", "BITD.Encumbered",
-                "BITD.Encumbered", "BITD.Encumbered", "BITD.OverMax", "BITD.OverMax"];
-            mule_level = ["BITD.Discreet", "BITD.Discreet", "BITD.Discreet", "BITD.Discreet", "BITD.Discreet", "BITD.Discreet", "BITD.Discreet", "BITD.Conspicuous",
-                "BITD.Conspicuous", "BITD.Encumbered", "BITD.Encumbered", "BITD.OverMax"];
-        } else {
-            load_level = ["BITD.Light", "BITD.Light", "BITD.Light", "BITD.Light", "BITD.Normal", "BITD.Normal", "BITD.Heavy", "BITD.Encumbered",
-                "BITD.Encumbered", "BITD.Encumbered", "BITD.OverMax", "BITD.OverMax"];
-            mule_level = ["BITD.Light", "BITD.Light", "BITD.Light", "BITD.Light", "BITD.Light", "BITD.Light", "BITD.Normal", "BITD.Normal",
-                "BITD.Heavy", "BITD.Encumbered", "BITD.OverMax", "BITD.OverMax"];
-        }
-        let mule_present = 0;
-
-
-        //look for Mule ability
-        // @todo - fix translation.
-        sheetData.items.forEach(i => {
-            if (i.type === "ability" && i.name === "(C) Mule") {
-                mule_present = 1;
-            }
-        });
-
-        //set encumbrance level
-        if (mule_present) {
-            sheetData.system.load_level = mule_level[loadout];
-        } else {
-            sheetData.system.load_level = load_level[loadout];
-        }
-
-        if (game.settings.get('blades-in-the-dark', 'DeepCutLoad')) {
-            sheetData.system.load_levels = {"BITD.Discreet": "BITD.Discreet", "BITD.Conspicuous": "BITD.Conspicuous"};
-        } else {
-            sheetData.system.load_levels = {
-                "BITD.Light": "BITD.Light",
-                "BITD.Normal": "BITD.Normal",
-                "BITD.Heavy": "BITD.Heavy"
-            };
-        }
+        sheetData.system.loadout = Math.max(0, loadout);
+        sheetData.system.load_max = sheetData.system.approach === "hot" ? 6 : 3;
 
         sheetData.system.description = await enrichHTML(sheetData.system.description, {
             secrets: sheetData.owner,
             async: true
         });
 
-        // catch unmigrated actor data and apply the Mastery crew ability to attribute maxes
+        // Apply action maxima and any active-effect adjustments.
         sheetData.system.attributes = this.actor.getComputedAttributes();
 
-        //check for additional stress and trauma from crew sources
+        // Burnout is derived from the marked conditions, not entered by hand.
+        const burnoutConditions = sheetData.system.burnout?.conditions ?? {};
+        sheetData.system.burnout.value = Object.values(burnoutConditions).filter(Boolean).length;
         sheetData.system.stress.max = this.actor.getMaxStress();
-        sheetData.system.trauma.max = this.actor.getMaxTrauma();
-
-        //check for healing minimums
-        sheetData.system.healing_clock.value = this.actor.getHealingMin();
 
         return sheetData;
     }
@@ -169,6 +117,26 @@ export class BladesActorSheet extends BladesSheet {
         // Add custom contact
         html.find('.add-custom-contact').click(() => {
             BladesHelpers.addCustomContact(this.actor);
+        });
+
+        // Burnout conditions drive the number of marked Burnout boxes.
+        html.find('input[name^="system.burnout.conditions."]').change(async () => {
+            const conditions = {};
+            html.find('input[name^="system.burnout.conditions."]').each((_, input) => {
+                const key = input.name.split('.').pop();
+                conditions[key] = input.checked;
+            });
+            await this.actor.update({
+                'system.burnout.conditions': conditions,
+                'system.burnout.value': Object.values(conditions).filter(Boolean).length
+            });
+        });
+
+        // Switching approach changes the loadout cap immediately.
+        html.find('select[name="system.approach"]').change(async (event) => {
+            const approach = event.currentTarget.value;
+            await this.actor.update({ 'system.approach': approach });
+            this.render(false);
         });
 
     }

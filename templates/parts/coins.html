@@ -1,39 +1,25 @@
 <div id="character-{{_id}}-coins" class="flex-horizontal">
 
-  <div id="character-{{_id}}-coins-hands">
+  <div id="character-{{_id}}-cash">
     <div class="stripe">
-      <!--<label for="coins-{{_id}}-hands-0"><b>{{localize "BITD.Coin"}}</b>
-        <i class="fab fa-creative-commons-zero nullifier"></i></label>-->
-		<b>{{localize "BITD.Coin"}}</b>
+      <b>{{localize "CC.Cash"}}</b>
     </div>
     <div class="coins coins-hands">
-      {{#multiboxes system.coins}}
-      <input type="radio" id="coins-{{_id}}-hands-0" name="system.coins" value="0" checked="checked">
-	  {{#times_from 1 system.coins_max.hand}}
-		  <input type="radio" id="coins-{{../_id}}-hands-{{this}}" name="system.coins" value="{{this}}">
-		  <label class="radio-toggle" for="coins-{{../_id}}-hands-{{this}}"></label>
+      {{#multiboxes system.cash}}
+      <input type="radio" id="cash-{{_id}}-0" name="system.cash" value="0" checked="checked">
+      {{#times_from 1 system.cash_max}}
+      <input type="radio" id="cash-{{../_id}}-{{this}}" name="system.cash" value="{{this}}">
+      <label class="radio-toggle" for="cash-{{../_id}}-{{this}}"></label>
       {{/times_from}}
       {{/multiboxes}}
     </div>
   </div>
 
-  <div id="coins-{{_id}}-coins-stashed">
-
+  <div id="character-{{_id}}-bank">
     <div class="stripe">
-      <!--<label for="coins-{{_id}}-stashed-0">{{localize "BITD.Stash"}} <i
-              class="fab fa-creative-commons-zero nullifier"></i></label>-->
-			  <b>{{localize "BITD.Stash"}}</b>
+      <b>{{localize "CC.Bank"}}</b>
     </div>
-    <div class="coins coins-stashed">
-      {{#multiboxes system.coins_stashed}}
-      <input type="radio" id="coins-{{_id}}-stashed-0" name="system.coins_stashed" value="0" checked="checked">
-	  {{#times_from 1 system.coins_max.stash}}
-		  <input type="radio" id="coins-{{_id}}-stashed-{{this}}" name="system.coins_stashed" value="{{this}}">
-		  <label class="radio-toggle" for="coins-{{_id}}-stashed-{{this}}"></label>
-	  {{/times_from}}
-      {{/multiboxes}}
-    </div>
-
+    <input type="number" id="bank-{{_id}}" name="system.bank" value="{{system.bank}}" min="0" step="1" style="width: 4em">
   </div>
 
 </div>

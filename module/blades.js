@@ -18,6 +18,7 @@ import { BladesCrewSheet } from "./blades-crew-sheet.js";
 import { BladesClockSheet } from "./blades-clock-sheet.js";
 import { BladesNPCSheet } from "./blades-npc-sheet.js";
 import { BladesFactionSheet } from "./blades-faction-sheet.js";
+import { BladesCampaignSheet } from "./blades-campaign-sheet.js";
 import * as migrations from "./migration.js";
 import { getActorSheetClass, getItemSheetClass, registerActorSheet, unregisterActorSheet, registerItemSheet, unregisterItemSheet } from "./compat.js";
 
@@ -27,17 +28,17 @@ window.BladesHelpers = BladesHelpers;
 /*  Foundry VTT Initialization                  */
 /* -------------------------------------------- */
 Hooks.once("init", async function() {
-  console.log(`Initializing Blades In the Dark System`);
+  console.log(`Initializing Copperhead County System`);
 
-  game.blades = {
+  game.copperhead = {
     dice: bladesRoll,
 	roller: simpleRollPopup
   };
-  game.system.bladesClocks = {
+  game.system.copperheadClocks = {
     sizes: [ 4, 6, 8, 10, 12 ]
   };
 
-  game.system.traumas = [ "cold", "haunted", "obsessed", "paranoid", "reckless", "soft", "unstable", "vicious" ];
+  game.system.burnoutConditions = ["caution", "compassion", "conscience", "hope", "nerve", "sobriety", "stability", "trust"];
 
   CONFIG.Item.documentClass = BladesItem;
   CONFIG.Actor.documentClass = BladesActor;
@@ -47,7 +48,7 @@ Hooks.once("init", async function() {
   registerSystemSettings();
 
 
-  if (game.settings.get('blades-in-the-dark', "PublicClocks")) {
+  if (game.settings.get('copperhead-county', "PublicClocks")) {
 	Hooks.on("preCreateActor", (actor, createData, options, userId) => {
 		if (actor.type === "\uD83D\uDD5B clock") {
 			actor.updateSource({
@@ -141,7 +142,7 @@ Hooks.once("init", async function() {
     for (let i = 1; i <= max_rep; i++) {
 
       if (i > max_rep - turfs_amount_int) {
-		  html += `<input disabled type="radio" id="crew-${_id}-reputation-${i}" name="system.reputation" value="${i} dtype="Radio"><label style="background-image: url('systems/blades-in-the-dark/styles/assets/teeth/stresstooth-black.png')" class="radio-toggle" for="crew-${_id}-reputation-${i}"></label>`;
+		  html += `<input disabled type="radio" id="crew-${_id}-reputation-${i}" name="system.reputation" value="${i}" dtype="Radio"><label style="background-image: url('systems/copperhead-county/styles/assets/teeth/stresstooth-black.png')" class="radio-toggle" for="crew-${_id}-reputation-${i}"></label>`;
 	  } else {
 	  html += `<input type="radio" id="crew-${_id}-reputation-${i}" name="system.reputation" value="${i}" dtype="Radio"><label class="radio-toggle" for="crew-${_id}-reputation-${i}"></label>`;
 	  }
@@ -257,7 +258,7 @@ Hooks.once("init", async function() {
 
     // Label for 0
     html += `<label class="clock-zero-label" for="clock-0-${uniq_id}}"><i class="fab fa-creative-commons-zero nullifier"></i></label>`;
-    html += `<div id="blades-clock-${uniq_id}" class="blades-clock clock-${type} clock-${type}-${current_value}" style="background-image:url('systems/blades-in-the-dark/themes/${color}/${type}clock_${current_value}.svg');">`;
+    html += `<div id="blades-clock-${uniq_id}" class="blades-clock clock-${type} clock-${type}-${current_value}" style="background-image:url('systems/copperhead-county/themes/${color}/${type}clock_${current_value}.svg');">`;
 
     let zero_checked = (parseInt(current_value) === 0) ? 'checked' : '';
     html += `<input type="radio" value="0" id="clock-0-${uniq_id}}" data-dType="String" name="${parameter_name}" ${zero_checked}>`;
@@ -288,7 +289,7 @@ Hooks.once("init", async function() {
 
     // Label for 0
     html += `<label class="clock-zero-label" for="clock-0-${uniq_id}}"><i class="fab fa-creative-commons-zero nullifier"></i></label>`;
-    html += `<div id="blades-clock-${uniq_id}" class="blades-clock clock-${type} clock-${type}-${current_value}" style="background-image:url('systems/blades-in-the-dark/themes/black/${type}clock_${current_value}.svg');">`;
+    html += `<div id="blades-clock-${uniq_id}" class="blades-clock clock-${type} clock-${type}-${current_value}" style="background-image:url('systems/copperhead-county/themes/black/${type}clock_${current_value}.svg');">`;
 
     let zero_checked = (parseInt(current_value) === 0) ? 'checked' : '';
     html += `<input type="radio" value="0" id="clock-0-${uniq_id}}" data-dType="String" name="${parameter_name}" ${zero_checked}>`;
@@ -311,7 +312,7 @@ Hooks.once("init", async function() {
   
   // check for game settings
   Handlebars.registerHelper('getSetting', function( string ) {
-	  return (game.settings.get('blades-in-the-dark', string));
+	  return (game.settings.get('copperhead-county', string));
 
   });
 });
@@ -327,19 +328,20 @@ Hooks.once("ready", async function() {
   const itemSheetClass = getItemSheetClass();
 
   unregisterActorSheet("core", actorSheetClass);
-  registerActorSheet("blades", BladesActorSheet, { types: ["character"], makeDefault: true });
-  registerActorSheet("blades", BladesCrewSheet, { types: ["crew"], makeDefault: true });
-  registerActorSheet("blades", BladesFactionSheet, { types: ["factions"], makeDefault: true });
-  registerActorSheet("blades", BladesClockSheet, { types: ["\uD83D\uDD5B clock"], makeDefault: true });
-  registerActorSheet("blades", BladesNPCSheet, { types: ["npc"], makeDefault: true });
+  registerActorSheet("copperhead-county", BladesActorSheet, { types: ["character"], makeDefault: true });
+  registerActorSheet("copperhead-county", BladesCrewSheet, { types: ["crew"], makeDefault: true });
+  registerActorSheet("copperhead-county", BladesFactionSheet, { types: ["factions"], makeDefault: true });
+  registerActorSheet("copperhead-county", BladesCampaignSheet, { types: ["campaign"], makeDefault: true });
+  registerActorSheet("copperhead-county", BladesClockSheet, { types: ["\uD83D\uDD5B clock"], makeDefault: true });
+  registerActorSheet("copperhead-county", BladesNPCSheet, { types: ["npc"], makeDefault: true });
   unregisterItemSheet("core", itemSheetClass);
-  registerItemSheet("blades", BladesItemSheet, {makeDefault: true});
+  registerItemSheet("copperhead-county", BladesItemSheet, {makeDefault: true});
 
   await preloadHandlebarsTemplates();
 
 /**
   // Determine whether a system migration is required
-  const currentVersion = game.settings.get("bitd", "systemMigrationVersion");
+  const currentVersion = game.settings.get("copperhead-county", "systemMigrationVersion");
   const NEEDS_MIGRATION_VERSION = 2.15;
 
   let needMigration = (currentVersion < NEEDS_MIGRATION_VERSION) || (currentVersion === null);

@@ -1,0 +1,31 @@
+<form class="{{cssClass}} actor-sheet campaign-sheet" autocomplete="off">
+  <section class="flex-horizontal">
+    <img src="{{img}}" data-edit="img" data-tooltip="{{name}}" height="72" width="72"/>
+    <div class="grow-two">
+      <label for="campaign-{{_id}}-name"><b>{{localize "BITD.Name"}}</b></label>
+      <input type="text" id="campaign-{{_id}}-name" name="name" value="{{name}}">
+    </div>
+  </section>
+
+  <section class="flex-horizontal big-teeth-section">
+    <div class="big-teeth">
+      <div class="black-label">{{localize "CC.CountyTension"}}</div>
+      {{#multiboxes system.county_tension}}
+      <input type="radio" id="campaign-{{_id}}-tension-0" name="system.county_tension" value="0">
+      {{#times_from 1 system.county_tension_max}}
+      <input type="radio" id="campaign-{{../_id}}-tension-{{this}}" name="system.county_tension" value="{{this}}">
+      <label class="radio-toggle" for="campaign-{{../_id}}-tension-{{this}}"></label>
+      {{/times_from}}
+      {{/multiboxes}}
+    </div>
+    <div>
+      <div class="black-label">{{localize "CC.TensionClock"}}</div>
+      {{{blades-clock "system.tension_clock" system.tension_clock_max system.tension_clock _id}}}
+    </div>
+  </section>
+
+  <section class="flex-vertical">
+    <div class="label-stripe"><p>{{localize "BITD.Notes"}}</p></div>
+    <textarea rows="18" name="system.description">{{{system.description}}}</textarea>
+  </section>
+</form>

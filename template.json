@@ -1,8 +1,81 @@
 {
   "Actor": {
-  "types": ["\uD83D\uDD5B clock", "character", "npc", "crew",  "factions"],
+  "types": ["\uD83D\uDD5B clock", "character", "npc", "crew", "factions", "campaign"],
   "character": {
+    "drive": "",
+    "origin": "",
+    "history": "",
+    "approach": "cold",
+    "bank": 0,
+    "cash": [0],
+    "cash_max": 10,
+    "burnout": {
+      "value": 0,
+      "max": 4,
+      "conditions": {
+        "caution": false,
+        "compassion": false,
+        "conscience": false,
+        "hope": false,
+        "nerve": false,
+        "sobriety": false,
+        "stability": false,
+        "trust": false
+      }
+    },
+    "injuries": {
+      "minor": ["", ""],
+      "major": ["", ""],
+      "critical": ["", ""],
+      "permanent": ["", ""],
+      "stable": false,
+      "countdown": [0]
+    },
+    "personal_trouble": {
+      "value": 0,
+      "max": 6
+    },
+    "attributes": {
+      "grit": {
+        "exp": 0,
+        "exp_max": 6,
+        "bonus": 0,
+        "label": "CC.Grit",
+        "skills": {
+          "fight": { "label": "CC.Fight", "value": 0, "max": 4, "min": 0 },
+          "growl": { "label": "CC.Growl", "value": 0, "max": 4, "min": 0 },
+          "handle": { "label": "CC.Handle", "value": 0, "max": 4, "min": 0 },
+          "tread": { "label": "CC.Tread", "value": 0, "max": 4, "min": 0 }
+        }
+      },
+      "gumption": {
+        "exp": 0,
+        "exp_max": 6,
+        "bonus": 0,
+        "label": "CC.Gumption",
+        "skills": {
+          "connect": { "label": "CC.Connect", "value": 0, "max": 4, "min": 0 },
+          "direct": { "label": "CC.Direct", "value": 0, "max": 4, "min": 0 },
+          "reckon": { "label": "CC.Reckon", "value": 0, "max": 4, "min": 0 },
+          "survey": { "label": "CC.Survey", "value": 0, "max": 4, "min": 0 }
+        }
+      },
+      "grace": {
+        "exp": 0,
+        "exp_max": 6,
+        "bonus": 0,
+        "label": "CC.Grace",
+        "skills": {
+          "creep": { "label": "CC.Creep", "value": 0, "max": 4, "min": 0 },
+          "fix": { "label": "CC.Fix", "value": 0, "max": 4, "min": 0 },
+          "hunt": { "label": "CC.Hunt", "value": 0, "max": 4, "min": 0 },
+          "hustle": { "label": "CC.Hustle", "value": 0, "max": 4, "min": 0 }
+        }
+      }
+    },
     "alias": "",
+    "description": "",
+    "looks": "",
     "look": "",
     "heritage": "",
     "background": "",
@@ -79,104 +152,6 @@
       "armor": 0,
       "heavy": 0,
       "special": 0
-    },
-    "attributes": {
-        "insight": {
-          "exp": 0,
-          "exp_max": 6,
-          "bonus": 0,
-          "label": "BITD.SkillsInsight",
-          "skills": {
-            "hunt": {
-              "label": "BITD.SkillsHunt",
-              "value": 0,
-              "max": 3,
-              "min": 0
-            },
-            "study": {
-              "label": "BITD.SkillsStudy",
-              "value": 0,
-              "max": 3,
-              "min": 0
-            },
-            "survey": {
-              "label": "BITD.SkillsSurvey",
-              "value": 0,
-              "max": 3,
-              "min": 0
-            },
-            "tinker": {
-              "label": "BITD.SkillsTinker",
-              "value": 0,
-              "max": 3,
-              "min": 0
-            }
-          }
-        },
-        "prowess": {
-          "exp": 0,
-          "exp_max": 6,
-          "bonus": 0,
-          "label": "BITD.SkillsProwess",
-          "skills": {
-            "finesse": {
-              "label": "BITD.SkillsFinesse",
-              "value": 0,
-              "max": 3,
-              "min": 0
-            },
-            "prowl": {
-              "label": "BITD.SkillsProwl",
-              "value": 0,
-              "max": 3,
-              "min": 0
-            },
-            "skirmish": {
-              "label": "BITD.SkillsSkirmish",
-              "value": 0,
-              "max": 3,
-              "min": 0
-            },
-            "wreck": {
-              "label": "BITD.SkillsWreck",
-              "value": 0,
-              "max": 3,
-              "min": 0
-            }
-          }
-        },
-        "resolve": {
-          "exp": 0,
-          "exp_max": 6,
-          "bonus": 0,
-          "label": "BITD.SkillsResolve",
-          "skills": {
-            "attune": {
-              "label": "BITD.SkillsAttune",
-              "value": 0,
-              "max": 3,
-              "min": 0
-            },
-            "command": {
-              "label": "BITD.SkillsCommand",
-              "value": 0,
-              "max": 3,
-              "min": 0
-            },
-            "consort": {
-              "label": "BITD.SkillsConsort",
-              "value": 0,
-              "max": 3,
-              "min": 0
-            },
-            "sway": {
-              "label": "BITD.SkillsSway",
-              "value": 0,
-              "max": 3,
-              "min": 0
-            }
-          }
-        }
     }
   },
   "crew": {
@@ -184,6 +159,10 @@
     "reputation": [0],
     "lair": "",
     "tier": 0,
+    "profile": "low",
+    "trouble_clock": [0],
+    "trouble_clock_max": 6,
+    "description": "",
     "deity": "",
     "rep2": {
       "value": "",
@@ -199,14 +178,11 @@
       "color": "black"
 	  },
     "hold_types": ["weak", "strong"],
-    "coins": {
+    "cash": {
       "max": 4,
       "value": [0]
     },
-    "vault": {
-      "value": [0],
-      "max": 0
-    },
+    "income": 0,
     "turf": {
       "descriptions": [],
       "max": 6,
@@ -214,7 +190,8 @@
     },
     "features": [],
     "heat": [0],
-    "wanted": [0],
+    "raid": [0],
+    "raid_max": 4,
     "acquaintances": [],
     "acquaintances_label": "BITD.Contacts",
     "hunting_grounds": [],
@@ -227,7 +204,8 @@
     "max": {
       "heat": 9,
       "tier": 4,
-      "wanted": 4,
+      "raid": 4,
+      "income": 6,
       "rep": 12,
       "exp": 10
     }
@@ -240,6 +218,14 @@
   },
     "factions": {
 	"name": ""
+    },
+    "campaign": {
+      "name": "Campaign Tracker",
+      "county_tension": [1],
+      "county_tension_max": 4,
+      "tension_clock": [0],
+      "tension_clock_max": 6,
+      "description": ""
     },
     "npc": {
       "name": "",

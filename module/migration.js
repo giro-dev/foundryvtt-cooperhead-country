@@ -48,7 +48,7 @@ export const migrateWorld = async function() {
   }
 
   // Set the migration as complete
-  game.settings.set("bitd", "systemMigrationVersion", game.system.version);
+  game.settings.set("copperhead-county", "systemMigrationVersion", game.system.version);
   ui.notifications.info(`BITD System Migration to version ${game.system.version} completed!`, {permanent: true});
 };
 
