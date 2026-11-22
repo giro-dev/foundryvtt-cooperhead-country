@@ -23,6 +23,7 @@ const num = (value) => Number(Array.isArray(value) ? value[0] : value) || 0;
 const loc = (key) => game.i18n.localize(key);
 
 function diceSelect(name, selected, max = 6) {
+  max = Math.max(max, selected);
   const options = Array.from({ length: max + 1 }, (_, n) => `<option value="${n}" ${n === selected ? "selected" : ""}>${n}d</option>`).join("");
   return `<div class="form-group"><label>${loc("BITD.RollNumberOfDice")}</label><select name="${name}">${options}</select></div>`;
 }
@@ -105,7 +106,7 @@ async function confirmExtraActivity(actor) {
 async function askActivityDice(title, { dice = 1, extra = "" } = {}) {
   const form = await openFormDialog({
     title,
-    content: `<form>${extra}${diceSelect("qty", Math.min(6, Math.max(0, num(dice))))}${checkbox("help", "CC.DowntimeHelp")}</form>`,
+    content: `<form>${extra}${diceSelect("qty", Math.max(0, num(dice)))}${checkbox("help", "CC.DowntimeHelp")}</form>`,
     okLabel: loc("BITD.Roll"),
     cancelLabel: loc("Cancel"),
   });
@@ -151,7 +152,7 @@ const DOWNTIME_EFFECTS = {
   async putInWork(actor, label) {
     const crew = getCharacterCrew(actor);
     let target = actor;
-    if (crew) {
+    if (crew?.isOwner) {
       const form = await openFormDialog({
         title: label,
         content: `<form><div class="form-group"><label>${loc("CC.DowntimeCashTo")}</label><select name="target"><option value="self">${escapeHtml(actor.name)}</option><option value="crew">${escapeHtml(crew.name)}</option></select></div></form>`,
@@ -245,7 +246,8 @@ export async function endDowntime(crew) {
     const burnout = Object.values(member.system.burnout?.conditions ?? {}).filter(Boolean).length;
     if (!burnout) continue;
     const stress = num(member.system.stress?.value);
-    const next = Math.min(Number(member.system.stress?.max) || 9, stress + burnout);
+    const max = member.getMaxStress?.() ?? (Number(member.system.stress?.max) || 9);
+    const next = Math.max(stress, Math.min(max, stress + burnout));
     await member.update({ "system.stress.value": next });
     lines.push(game.i18n.format("CC.DowntimeNoRnrStress", { name: escapeHtml(member.name), stress: next - stress }));
   }

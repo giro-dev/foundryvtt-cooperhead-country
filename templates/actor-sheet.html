@@ -154,7 +154,7 @@
       {{#if editable}}
       <div class="cc-downtime-activities flex-horizontal">
         {{#each downtime.activities as |activity|}}
-        <a class="cc-downtime-activity {{#if @root.downtime.exhausted}}disabled{{/if}}" data-activity="{{activity.key}}">{{localize activity.label}}</a>
+        <a class="cc-downtime-activity {{#if @root.downtime.exhausted}}exhausted{{/if}}" data-activity="{{activity.key}}">{{localize activity.label}}</a>
         {{/each}}
       </div>
       {{/if}}

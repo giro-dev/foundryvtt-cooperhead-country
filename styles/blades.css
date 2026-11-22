@@ -2002,9 +2002,8 @@ dialog.dialog .dialog-content input[type=checkbox]:checked + label {
   flex-wrap: wrap;
   gap: 6px;
 }
-.copperhead-county .cc-downtime-activity.disabled {
-  opacity: 0.4;
-  pointer-events: none;
+.copperhead-county .cc-downtime-activity.exhausted {
+  opacity: 0.6;
 }
 
 
