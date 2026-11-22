@@ -198,6 +198,7 @@ export async function logDowntimeActivity(actor, activity) {
     // Leaving recovery to luck (0d) uses no activity, so it stays available without Cash.
     if (activity === "recover" && num(actor.system.cash) < 1) options.luckOnly = true;
     else if (await confirmExtraActivity(actor)) paid = true;
+    else if (activity === "recover") options.luckOnly = true;
     else return;
   }
   const label = loc(labelKey("CC.Downtime", activity));
