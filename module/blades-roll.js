@@ -22,6 +22,7 @@ export async function bladesRoll(dice_amount, attribute_name = "", position = "r
 	// show 3d Dice so Nice if enabled
 	await r.evaluate();
 	await showChatRollMessage(r, zeromode, attribute_name, position, effect, note, current_stress, current_crew_tier);
+	return { roll: r, zeromode, status: getBladesRollStatus(r.terms[0].results, zeromode) };
 
 }
 

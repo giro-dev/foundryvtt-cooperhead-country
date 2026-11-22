@@ -141,6 +141,21 @@
     <div id="character-{{_id}}-personal-trouble" class="personal-trouble">
       <div class="black-label">{{localize "CC.PersonalTrouble"}}</div>
       {{{blades-clock "system.personal_trouble.value" system.personal_trouble.max system.personal_trouble.value _id}}}
+      {{#if editable}}
+      <a class="cc-personal-trouble-roll" data-tooltip="{{localize 'CC.RollTrouble'}}"><i class="fas fa-dice"></i> {{localize "CC.RollTrouble"}}</a>
+      {{/if}}
+    </div>
+
+    <div id="character-{{_id}}-downtime" class="cc-downtime">
+      <div class="black-label">{{localize "CC.Downtime"}}</div>
+      <div class="gray-label" {{#unless downtime.hasCrew}}data-tooltip="{{localize 'CC.DowntimeNoCrew'}}"{{/unless}}>{{localize "CC.DowntimeUsed"}}: {{downtime.used}}/{{downtime.allowance}}</div>
+      {{#if editable}}
+      <div class="cc-downtime-activities flex-horizontal">
+        {{#each downtime.activities as |activity|}}
+        <a class="cc-downtime-activity {{#if @root.downtime.exhausted}}disabled{{/if}}" data-activity="{{activity.key}}">{{localize activity.label}}</a>
+        {{/each}}
+      </div>
+      {{/if}}
     </div>
   </div>
 

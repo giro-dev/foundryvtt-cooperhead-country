@@ -2,6 +2,8 @@ import {BladesSheet} from "./blades-sheet.js";
 import {BladesActiveEffect} from "./blades-active-effect.js";
 import {BladesHelpers} from "./blades-helpers.js";
 import { enrichHTML } from "./compat.js";
+import { DOWNTIME_ACTIVITIES } from "./copperhead-rules.js";
+import { getCharacterCrew, getDowntimeAllowance, labelKey, logDowntimeActivity, rollTroubleForClock } from "./copperhead-automation.js";
 
 /**
  * Extend the basic ActorSheet with some very simple modifications
@@ -54,6 +56,16 @@ export class BladesActorSheet extends BladesSheet {
         sheetData.system.burnout.value = Object.values(burnoutConditions).filter(Boolean).length;
         sheetData.burnoutFull = sheetData.system.burnout.value >= (Number(sheetData.system.burnout.max) || 0);
         sheetData.system.stress.max = this.actor.getMaxStress();
+
+        const downtimeUsed = Number(sheetData.system.downtime?.used) || 0;
+        const downtimeAllowance = getDowntimeAllowance(this.actor);
+        sheetData.downtime = {
+            used: downtimeUsed,
+            allowance: downtimeAllowance,
+            exhausted: downtimeUsed >= downtimeAllowance,
+            hasCrew: Boolean(getCharacterCrew(this.actor)),
+            activities: DOWNTIME_ACTIVITIES.map((key) => ({ key, label: labelKey("CC.Downtime", key) })),
+        };
 
         return sheetData;
     }
@@ -119,6 +131,13 @@ export class BladesActorSheet extends BladesSheet {
         html.find('.add-custom-contact').click(() => {
             BladesHelpers.addCustomContact(this.actor);
         });
+
+        html.find('.cc-personal-trouble-roll').click(() => {
+            const trouble = this.actor.system.personal_trouble;
+            rollTroubleForClock(this.actor, "system.personal_trouble.value", trouble?.max ?? 6, game.i18n.localize("CC.PersonalTrouble"));
+        });
+
+        html.find('.cc-downtime-activity').click((ev) => logDowntimeActivity(this.actor, ev.currentTarget.dataset.activity));
 
         // Burnout conditions drive the number of marked Burnout boxes.
         html.find('input[name^="system.burnout.conditions."]').change(async () => {

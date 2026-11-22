@@ -80,3 +80,32 @@ export function getHeatLevel(heat, profile = "sheets2022") {
   }
   return level;
 }
+
+export const TROUBLE_TYPES = Object.freeze(["personal", "crew", "police", "faction"]);
+export const CLAIM_STATUSES = Object.freeze(["none", "present", "controlled"]);
+export const DOWNTIME_ACTIVITIES = Object.freeze(["buyStuff", "rnr", "project", "putInWork", "recover"]);
+export const DOWNTIME_ACTIVITIES_BY_PROFILE = Object.freeze({ low: 1, high: 2 });
+
+/** Advance a clock by ticks, clamped to [0, max]. */
+export function advanceClock(value, max, ticks = 1) {
+  const size = Math.max(1, Number(max) || 1);
+  const current = Math.min(size, Math.max(0, Number(value) || 0));
+  const raw = current + (Number(ticks) || 0);
+  const next = Math.min(size, Math.max(0, raw));
+  return { value: next, filled: next >= size && current < size, overflow: Math.max(0, raw - size) };
+}
+
+/** Downtime activities a character may take per downtime for the crew profile. */
+export function getDowntimeActivities(profile = "low") {
+  return DOWNTIME_ACTIVITIES_BY_PROFILE[profile] ?? DOWNTIME_ACTIVITIES_BY_PROFILE.low;
+}
+
+/** Count claims by status; unknown statuses count as "none". */
+export function summarizeClaims(claims = []) {
+  const summary = Object.fromEntries(CLAIM_STATUSES.map((status) => [status, 0]));
+  for (const claim of Array.isArray(claims) ? claims : Object.values(claims ?? {})) {
+    const status = CLAIM_STATUSES.includes(claim?.status) ? claim.status : "none";
+    summary[status] += 1;
+  }
+  return summary;
+}

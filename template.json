@@ -35,6 +35,9 @@
       "value": 0,
       "max": 6
     },
+    "downtime": {
+      "used": 0
+    },
     "attributes": {
       "grit": {
         "exp": 0,
@@ -162,6 +165,7 @@
     "profile": "low",
     "trouble_clock": [0],
     "trouble_clock_max": 6,
+    "claims": [],
     "description": "",
     "deity": "",
     "rep2": {
@@ -225,6 +229,7 @@
       "county_tension_max": 4,
       "tension_clock": [0],
       "tension_clock_max": 6,
+      "troubles": [],
       "description": ""
     },
     "npc": {

@@ -1,7 +1,10 @@
 import { BladesSheet } from "./blades-sheet.js";
 import { BladesActiveEffect } from "./blades-active-effect.js";
 import { BladesHelpers } from "./blades-helpers.js";
-import { getHeatLevel } from "./copperhead-rules.js";
+import { CLAIM_STATUSES, getHeatLevel, summarizeClaims } from "./copperhead-rules.js";
+import { addListEntry, deleteListEntry, labelKey, rollTroubleForClock, startDowntime, updateListEntry } from "./copperhead-automation.js";
+
+const CLAIMS = "system.claims";
 
 /**
  * @extends {BladesSheet}
@@ -22,8 +25,8 @@ export class BladesCrewSheet extends BladesSheet {
   /* -------------------------------------------- */
 
   /** @override */
-  getData(options) {
-    const superData = super.getData( options );
+  async getData(options) {
+    const superData = await super.getData(options);
     const sheetData = superData.data;
     sheetData.owner = superData.owner;
     sheetData.editable = superData.editable;
@@ -54,6 +57,10 @@ export class BladesCrewSheet extends BladesSheet {
 
     const heatProfile = game.settings.get("copperhead-county", "heatProfile");
     sheetData.heatLevel = getHeatLevel(sheetData.system.heat, heatProfile);
+
+    sheetData.claims = sheetData.system.claims ?? [];
+    sheetData.claimsSummary = summarizeClaims(sheetData.claims);
+    sheetData.claimStatuses = CLAIM_STATUSES.map((key) => ({ key, label: labelKey("CC.Claim", key) }));
 	
 	//return data
     return sheetData;
@@ -138,6 +145,21 @@ export class BladesCrewSheet extends BladesSheet {
     html.find('.add-custom-contact').click(() => {
       BladesHelpers.addCustomContact(this.actor);
     });
+
+    html.find('.cc-crew-trouble-roll').click(() => {
+      rollTroubleForClock(this.actor, "system.trouble_clock", this.actor.system.trouble_clock_max, game.i18n.localize("CC.CrewTrouble"));
+    });
+
+    html.find('.cc-start-downtime').click(() => startDowntime(this.actor));
+
+    // Claims
+    const entryId = (ev) => ev.currentTarget.closest("[data-entry-id]")?.dataset.entryId;
+    html.find('.cc-add-claim').click(() => addListEntry(this.actor, CLAIMS, { name: "", category: "", status: "present", notes: "" }));
+    html.find('.cc-claim-field').change((ev) => {
+      ev.stopPropagation();
+      updateListEntry(this.actor, CLAIMS, entryId(ev), { [ev.currentTarget.dataset.field]: ev.currentTarget.value });
+    });
+    html.find('.cc-claim-delete').click((ev) => deleteListEntry(this.actor, CLAIMS, entryId(ev)));
 
   }
 

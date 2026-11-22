@@ -54,6 +54,14 @@ Decisions acordades i encara vigents:
 - Bugs: ids de rellotges amb `}` sobrant, `createListOfActions` començava amb `undefined`, `multiboxes` depenia de `RegExp.escape`, `getData` async sense `await`.
 - CI `.github/workflows/test.yml`: tests de regles, sintaxi JS, JSON i compilació de plantilles Handlebars.
 
+### Automatització (punts 3, 4 i 5, parcial)
+
+- Campanya: llista de pistes de Trouble (`system.troubles`: personal/crew/police/faction) amb rellotge, +/−, tirada de Trouble que hi suma els ticks i avís al xat quan s'omple; botó per avançar el Tension Clock.
+- Crew: tirada de Crew Trouble que omple `trouble_clock`; claims propis (`system.claims`: nom, categoria, estat none/present/controlled, notes) amb resum; el turf del crew playbook heretat es manté a part.
+- Downtime: activitats per personatge segons el perfil del crew (Low 1, High 2), registre al xat i bloqueig quan s'esgoten; botó de GM "Start downtime" que reinicia el comptador dels membres.
+- Personal Trouble: tirada que omple el rellotge del personatge.
+- No automatitzat (cal el llibre): quantitat de Heat de Lay Low, efectes mecànics de cada activitat, income/profit dels claims, relació claims↔Turf/Tier, conseqüències de County Tension i Raid/arrest.
+
 ### Pendents, ordre suggerit
 
 1. **Smoke test Foundry 14** (bloquejat fins a disposar d'instància): crear personatge/crew/campaign, obrir fitxes, guardar camps i rellotges, fer tirada d'acció i resistència, verificar Burnout/lesions i canviar approach.

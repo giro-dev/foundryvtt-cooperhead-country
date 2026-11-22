@@ -136,7 +136,17 @@
       <div class="crew-trouble-clock" style="padding-top: 6px;">
         <div class="black-label">{{localize "CC.CrewTrouble"}}</div>
         {{{blades-clock "system.trouble_clock" system.trouble_clock_max system.trouble_clock _id}}}
+        {{#if editable}}
+        <a class="cc-crew-trouble-roll" data-tooltip="{{localize 'CC.RollTrouble'}}"><i class="fas fa-dice"></i> {{localize "CC.RollTrouble"}}</a>
+        {{/if}}
       </div>
+
+      {{#if isGM}}
+      <div class="cc-downtime" style="padding-top: 6px;">
+        <div class="black-label">{{localize "CC.Downtime"}}</div>
+        <a class="cc-start-downtime"><i class="fas fa-bed"></i> {{localize "CC.DowntimeStart"}}</a>
+      </div>
+      {{/if}}
 
       <nav class="tabs flex-horizontal" style="padding-top: 8px">
         <a class="item" data-tab="claims">{{localize "CC.Claims"}}</a>
@@ -210,11 +220,29 @@
 
     {{!-- Claims --}}
     <div class="tab" data-tab="claims">
-      <div class="label-stripe">
+      <div class="label-stripe flex-horizontal">
         <p><label>{{localize "CC.Claims"}}</label></p>
+        <p>{{localize "CC.ClaimsSummary" present=claimsSummary.present controlled=claimsSummary.controlled}}</p>
+        {{#if editable}}
+        <p><a class="cc-add-claim" data-tooltip="{{localize 'CC.AddClaim'}}"><i class="fas fa-plus-square"></i></a></p>
+        {{/if}}
+      </div>
+      <div class="cc-claims flex-vertical">
+        {{#each claims as |claim|}}
+        <div class="cc-claim flex-horizontal" data-entry-id="{{claim.id}}">
+          <input type="text" class="cc-claim-field" data-field="name" value="{{claim.name}}" placeholder="{{localize 'CC.ClaimName'}}" {{#unless @root.editable}}disabled{{/unless}}>
+          <input type="text" class="cc-claim-field" data-field="category" value="{{claim.category}}" placeholder="{{localize 'CC.ClaimCategory'}}" {{#unless @root.editable}}disabled{{/unless}}>
+          <select class="cc-claim-field" data-field="status" data-tooltip="{{localize 'CC.ClaimStatus'}}" {{#unless @root.editable}}disabled{{/unless}}>
+            {{#each @root.claimStatuses as |status|}}<option value="{{status.key}}" {{#if (eq status.key claim.status)}}selected{{/if}}>{{localize status.label}}</option>{{/each}}
+          </select>
+          <input type="text" class="cc-claim-field grow-two" data-field="notes" value="{{claim.notes}}" placeholder="{{localize 'BITD.Notes'}}" {{#unless @root.editable}}disabled{{/unless}}>
+          {{#if @root.editable}}<a class="cc-claim-delete" data-tooltip="{{localize 'BITD.TitleDeleteItem'}}"><i class="fas fa-trash"></i></a>{{/if}}
+        </div>
+        {{/each}}
       </div>
       {{#each items as |item id|}}
       {{#if (eq item.type "crew_type")}}
+      <div class="label-stripe-gray"><p>{{localize "CC.LegacyTurf"}}</p></div>
       <div class="item" data-item-id="{{item._id}}">
         {{> "systems/copperhead-county/templates/parts/turf-list.html" _id=../_id turfs_data=item.system.turfs can_edit=false not_prison=true}}
       </div>

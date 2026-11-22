@@ -2,6 +2,9 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   ATTRIBUTE_ACTIONS,
+  advanceClock,
+  getDowntimeActivities,
+  summarizeClaims,
   getActionDice,
   getAttributeRating,
   getHeatLevel,
@@ -64,4 +67,23 @@ test("Heat level follows the selected profile thresholds", () => {
   assert.equal(getHeatLevel(8), "riotous");
   assert.equal(getHeatLevel(8, "corebook2021"), "noisy");
   assert.equal(getHeatLevel([9], "corebook2021"), "loud");
+});
+
+test("clocks advance, clamp and report when they fill", () => {
+  assert.deepEqual(advanceClock(3, 6, 2), { value: 5, filled: false, overflow: 0 });
+  assert.deepEqual(advanceClock([4], 6, 5), { value: 6, filled: true, overflow: 3 });
+  assert.deepEqual(advanceClock(6, 6, 1), { value: 6, filled: false, overflow: 1 });
+  assert.deepEqual(advanceClock(1, 6, -3), { value: 0, filled: false, overflow: 0 });
+});
+
+test("downtime activities depend on the crew profile", () => {
+  assert.equal(getDowntimeActivities("low"), 1);
+  assert.equal(getDowntimeActivities("high"), 2);
+  assert.equal(getDowntimeActivities(undefined), 1);
+});
+
+test("claims are summarised by status", () => {
+  const claims = [{ status: "controlled" }, { status: "present" }, { status: "controlled" }, { status: "bogus" }];
+  assert.deepEqual(summarizeClaims(claims), { none: 1, present: 1, controlled: 2 });
+  assert.deepEqual(summarizeClaims({ a: { status: "present" } }), { none: 0, present: 1, controlled: 0 });
 });
